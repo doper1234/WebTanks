@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- HTML5 Hello world by kirupa 
+- http://www.kirupa.com/html5/getting_your_feet_wet_html5_pg1.htm -->
+<html lang="en-us">
+
+<head>
+<meta charset="utf-8">
+<title>Tanks</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="shortcut icon" href="../title.png" type="image/png">
+
+</head>
+
+<body>
+	
+	<audio autoplay id="over">
+  		<source src="tanksres/BulletHitWall.wav" type="audio/wav" />
+ 	</audio>
+ 	<script type="text/javascript">
+    	var mysound = document.getElementById("over");
+	</script>
+	<div>
+		<h3 id = "score">Hi Score     00</h3>
+		<h1>Battle</h1>
+		<h1>City</h1>
+		<a href = "../demo.html" onMouseOver= "mysound.play();" ><h2>One Player</h2></a>
+		<a href = "game.html" onMouseOver= "mysound.play();"><h2>Two Player</h2></a>
+		<a href = "construction.html" onMouseOver= "mysound.play();"><h2>Construction</h2></a>
+		<a  href = "server.html" id = "online"><h2>Online</h2></a>
+		<a  href = "server.html" id = "offline"><h2>Offline</h2></a>
+		<h3 id = "logo">Namecot</h3>
+		<h3>Copyright 1980, 1981 Nameco LTD.</h3>
+		<h2 id = "download">Download:</h2>
+		<a href ="https://github.com/doper1234/Tanks/archive/master.zip"
+			id = "download" download><img src = "windowslogo.png" alt = "windows logo"></a>
+		<a href = "app-debug.apk" id="download"><img src = "androidlogo.png" alt = "android logo"></a>
+		<a href = "app-debug-unaligned.apk" id="download"><h2>Download android app unaligned</h2></a>
+		
+		
+		
+	</div>
+<!---<div id="mainContent">
+<p id="helloText">?</p>
+<button id="clickButton" class="buttonStyle">click me</button>
+</div>
+<script> 
+var myButton = document.getElementById("clickButton");
+var myText = document.getElementById("helloText");
+
+myButton.addEventListener('click', doSomething, false)
+
+function doSomething() {
+	myText.textContent = "hello, world!";
+}
+</script>-->
+
+<script type="text/javascript">
+	var playSound function(){
+		var audio = document.getElementById("tanksres/BulletHitWall");
+		audio.play();
+	}
+</script>
+
+</body>
+</html>

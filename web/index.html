@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Tanks</title>
+        <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.22/addons/p5.dom.js"></script>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+
+            @font-face {
+                font-family: "nes";
+                src: url("tanks/tanksres/emulogic.ttf");
+            }
+
+            body {
+                background: #808080;
+                overflow: hidden;
+                font-family: nes;
+                /*text-align: center;*/
+
+
+            }
+
+            canvas {
+                background: #000000;
+                display: inline;
+                text-align: left;
+                /*position: relative;
+                left:-250px;
+                margin: 0 auto;*/
+                border-color: #616161;
+            }
+
+            h3 {
+                font-size: 18px;
+                text-align:center;
+            }
+
+            h1{
+                font-size: 24px;
+                text-align:center;
+            }
+
+
+
+            #controls{
+                visibility:visible;
+            }
+
+            button {
+                border: none;
+                height: 50px;
+                width: 50px;
+            }
+
+            /*#instructions{
+                float: left;
+                background: #818181;
+                text-align: center;
+                width: 300px;
+                height: 700px;
+            }*/
+            #powerups{
+                visibility:visible;
+                font-size:10px;
+                text-align: left;
+                float:left;
+                background-color: #616161;
+                margin: 10px;
+                border-color: #000000;
+                border-left-width: 10px;
+            }
+            #everything{
+                visibility: hidden;
+            }
+
+        </style>
+    </head>
+    <body onkeydown="checkKeys(event)" onkeyup="stopMoving(event)">
+       <div id = "gameTitle">
+            <h1>Battle City/Tanks 1990</h1>
+            <h3 id="stage">Stage 0</h3>
+            <h3 id="playerLocation">0,0,0</h3>
+            <h3 id="bulletLocation">0,0 0,0</h3>
+        </div>
+       <div id="powerups">
+            <h3>Instructions</h3>
+            <img id ="arrowkeys" src ="tanks/tanksres/arrowkeys32.png" alt = "arrowkeys">move<br>
+            <img id ="spacebar" src ="tanks/tanksres/spacebar.png" alt = "space">
+            <img id ="enter" src ="tanks/tanksres/enter.png" alt = "enter">
+            shoot<br>
+            <img id ="pkey" src="tanks/tanksres/pkey.png" alt = "pause"> pause<br>
+            <img id="bEnemy1Down" src="tanks/tanksres/belvl1d.png" alt="enemy 1">
+            shoot a blinking enemy to spawn a powerup<br>
+            <img id="grenade" src="tanks/tanksres/grenade.png" alt="grenade">
+             destroys all enemies on the screen<br>
+            <img id="helmet" src="tanks/tanksres/hardhat.png" alt="helmet">
+            makes you temporarily invincible<br>
+            <img id="shovel" src="tanks/tanksres/shovel.png" alt="shovel">
+            builds a wall of steel around your base<br>
+            <img id="star" src="tanks/tanksres/star.png" alt="star">
+            increases your level by 1<br>
+            <img id="tank" src="tanks/tanksres/life.png" alt="tank">
+            gives you one extra life<br>
+            <img id="timer" src="tanks/tanksres/timer.png" alt="timer">
+            stops enemy tanks for a short time
+        </div>
+<!--       <div id="chat">
+            <h1>Chat Here </h1> 
+            <input type="text" name="chatName"/>
+            <button id = "joinChat" type = "button">join</button>
+            <textarea id="chatArea" rows="20" cols="50">
+            Peter joined the chat.
+            Chris joined the chat.
+            Chris: Are you there Peter?
+            Peter: Yep.</textarea>
+            <input type="text" name="chatInput"/>
+        </div>-->
+       <canvas id="myCanvas" width="416" height="416" style="border: 32px solid #a9a9a9;"></canvas>
+       <button id="connectButton" type = "button">connect</button>
+       <div id="buttons">
+            <!--<button type="button" onclick="mainMenu = true;">start</button>-->
+            <button type="button" onclick="checkKeysKeyCode(38);">Up</button>
+            <button type="button" onclick="checkKeysKeyCode(37);">Left</button>
+            <button type="button" onclick="checkKeysKeyCode(39);">Right</button>
+            <button type="button" onclick="checkKeysKeyCode(40);">Down</button>
+            <button type="button" onclick="checkKeysKeyCode(13);">shoot</button>
+            <button type="button" onclick="stopMovingNoEvent()">stop</button>
+<!--            <button type="button" onclick="next()">Next</button>
+            <button type="button" onclick="powerUp.grenadePowerUp();">die tanks</button>-->
+        </div>
+       <div id="everything">
+            <img id="bEnemy1Down" src="tanks/tanksres/belvl1d.png" alt="enemy 1">
+            <img id="grenade" src="tanks/tanksres/grenade.png" alt="grenade">
+            <img id="helmet" src="tanks/tanksres/hardhat.png" alt="helmet">
+            <img id="shovel" src="tanks/tanksres/shovel.png" alt="shovel">
+            <img id="star" src="tanks/tanksres/star.png" alt="star">
+            <img id="tank" src="tanks/tanksres/life.png" alt="tank">
+            <img id="timer" src="tanks/tanksres/timer.png" alt="timer">
+
+        <img id="up" src="tanks/tanksres/images/playerUpa.png">
+        <img id="down" src="tanks/tanksres/images/playerDowna.png">
+        <img id="left" src="tanks/tanksres/images/playerLefta.png">
+        <img id="right" src="tanks/tanksres/images/playerRighta.png">
+
+        <img id="up2" src="tanks/tanksres/tlvl2f.png">
+        <img id="down2" src="tanks/tanksres/tlvl2d.png">
+        <img id="left2" src="tanks/tanksres/tlvl2l.png">
+        <img id="right2" src="tanks/tanksres/tlvl2r.png">
+
+        <img id="up3" src="tanks/tanksres/tlvl3f.png">
+        <img id="down3" src="tanks/tanksres/tlvl3d.png">
+        <img id="left3" src="tanks/tanksres/tlvl3l.png">
+        <img id="right3" src="tanks/tanksres/tlvl3r.png">
+
+        <img id="up4" src="tanks/tanksres/tlvl4f.png">
+        <img id="down4" src="tanks/tanksres/tlvl4d.png">
+        <img id="left4" src="tanks/tanksres/tlvl4l.png">
+        <img id="right4" src="tanks/tanksres/tlvl4r.png">
+        
+        <img id="p2up" src="tanks/tanksres/images/player2up.png">
+        <img id="p2down" src="tanks/tanksres/images/player2down.png">
+        <img id="p2left" src="tanks/tanksres/images/player2left.png">
+        <img id="p2right" src="tanks/tanksres/images/player2right.png">
+
+        <img id="p2up2" src="tanks/tanksres/tlvl2f.png">
+        <img id="p2down2" src="tanks/tanksres/tlvl2d.png">
+        <img id="p2left2" src="tanks/tanksres/tlvl2l.png">
+        <img id="p2right2" src="tanks/tanksres/tlvl2r.png">
+
+        <img id="p2up3" src="tanks/tanksres/tlvl3f.png">
+        <img id="p2down3" src="tanks/tanksres/tlvl3d.png">
+        <img id="p2left3" src="tanks/tanksres/tlvl3l.png">
+        <img id="p2right3" src="tanks/tanksres/tlvl3r.png">
+
+        <img id="p2up4" src="tanks/tanksres/tlvl4f.png">
+        <img id="p2down4" src="tanks/tanksres/tlvl4d.png">
+        <img id="p2left4" src="tanks/tanksres/tlvl4l.png">
+        <img id="p2right4" src="tanks/tanksres/tlvl4r.png">
+
+        <img id="bulletUp" src="tanks/tanksres/images/bulletUp.png">
+        <img id="bulletDown" src="tanks/tanksres/images/bulletDown.png">
+        <img id="bulletLeft" src="tanks/tanksres/images/bulletLeft.png">
+        <img id="bulletRight" src="tanks/tanksres/images/bulletRight.png">
+        <img id="bricks" src="tanks/tanksres/images/bricks.png" alt="bricks">
+        <img id="steel" src="tanks/tanksres/images/steel.png" alt="steel">
+        <img id="trees" src="tanks/tanksres/images/trees.png" alt="trees">
+        <img id="flag" src="tanks/tanksres/images/flag.png" alt="flag">
+        <img id="surrender" src="surrender.png" alt="surrender">
+        <img id="water1" src="tanks/tanksres/images/water1.png" alt="water">
+        <img id="water2" src="tanks/tanksres/images/water2.png" alt="water">
+        <img id="water3" src="tanks/tanksres/images/water3.png" alt="water">
+        <img id="ice" src="tanks/tanksres/images/ice.png" alt="ice">
+        <img id="enemy1Right" src="tanks/tanksres/elvl1r.png" alt="enemy 1">
+        <img id="enemy1Left" src="tanks/tanksres/elvl1l.png" alt="enemy 1">
+        <img id="enemy1Up" src="tanks/tanksres/elvl1f.png" alt="enemy 1">
+        <img id="enemy1Down" src="tanks/tanksres/elvl1d.png" alt="enemy 1">
+        <img id="enemy2Right" src="tanks/tanksres/elvl2r.png" alt="enemy 2">
+        <img id="enemy2Left" src="tanks/tanksres/elvl2l.png" alt="enemy 2">
+        <img id="enemy2Up" src="tanks/tanksres/elvl2f.png" alt="enemy 2">
+        <img id="enemy2Down" src="tanks/tanksres/elvl2d.png" alt="enemy 2">
+        <img id="enemy3Right" src="tanks/tanksres/elvl3r.png" alt="enemy 3">
+        <img id="enemy3Left" src="tanks/tanksres/elvl3l.png" alt="enemy 3">
+        <img id="enemy3Up" src="tanks/tanksres/elvl3f.png" alt="enemy 3">
+        <img id="enemy3Down" src="tanks/tanksres/elvl3d.png" alt="enemy 3">
+        <img id="enemy4Right" src="tanks/tanksres/elvl4r.png" alt="enemy 4">
+        <img id="enemy4Left" src="tanks/tanksres/elvl4l.png" alt="enemy 4">
+        <img id="enemy4Up" src="tanks/tanksres/elvl4f.png" alt="enemy 4">
+        <img id="enemy4Down" src="tanks/tanksres/elvl4d.png" alt="enemy 4">
+
+        <img id="enemy4ARight" src="tanks/tanksres/elvl4r02.png" alt="enemy 4">
+        <img id="enemy4ALeft" src="tanks/tanksres/elvl4l02.png" alt="enemy 4">
+        <img id="enemy4AUp" src="tanks/tanksres/elvl4f02.png" alt="enemy 4">
+        <img id="enemy4ADown" src="tanks/tanksres/elvl4d02.png" alt="enemy 4">
+
+        <img id="enemy4BRight" src="tanks/tanksres/elvl4r03.png" alt="enemy 4">
+        <img id="enemy4BLeft" src="tanks/tanksres/elvl4l03.png" alt="enemy 4">
+        <img id="enemy4BUp" src="tanks/tanksres/elvl4f03.png" alt="enemy 4">
+        <img id="enemy4BDown" src="tanks/tanksres/elvl4d03.png" alt="enemy 4">
+
+        <img id="enemy4CRight" src="tanks/tanksres/elvl4r04.png" alt="enemy 4">
+        <img id="enemy4CLeft" src="tanks/tanksres/elvl4l04.png" alt="enemy 4">
+        <img id="enemy4CUp" src="tanks/tanksres/elvl4f04.png" alt="enemy 4">
+        <img id="enemy4CDown" src="tanks/tanksres/elvl4d04.png" alt="enemy 4">
+
+        <img id="bEnemy1Right" src="tanks/tanksres/belvl1r.png" alt="enemy 1">
+        <img id="bEnemy1Left" src="tanks/tanksres/belvl1l.png" alt="enemy 1">
+        <img id="bEnemy1Up" src="tanks/tanksres/belvl1f.png" alt="enemy 1">
+        <img id="bEnemy1Down" src="tanks/tanksres/belvl1d.png" alt="enemy 1">
+        <img id="bEnemy2Right" src="tanks/tanksres/belvl2r.png" alt="enemy 2">
+        <img id="bEnemy2Left" src="tanks/tanksres/belvl2l.png" alt="enemy 2">
+        <img id="bEnemy2Up" src="tanks/tanksres/belvl2f.png" alt="enemy 2">
+        <img id="bEnemy2Down" src="tanks/tanksres/belvl2d.png" alt="enemy 2">
+        <img id="bEnemy3Right" src="tanks/tanksres/belvl3r.png" alt="enemy 3">
+        <img id="bEnemy3Left" src="tanks/tanksres/belvl3l.png" alt="enemy 3">
+        <img id="bEnemy3Up" src="tanks/tanksres/belvl3f.png" alt="enemy 3">
+        <img id="bEnemy3Down" src="tanks/tanksres/belvl3d.png" alt="enemy 3">
+        <img id="bEnemy4Right" src="tanks/tanksres/belvl4r.png" alt="enemy 4">
+        <img id="bEnemy4Left" src="tanks/tanksres/belvl4l.png" alt="enemy 4">
+        <img id="bEnemy4Up" src="tanks/tanksres/belvl4f.png" alt="enemy 4">
+        <img id="bEnemy4Down" src="tanks/tanksres/belvl4d.png" alt="enemy 4">
+
+        <img id="peter" src="tanks/tanksres/peter.png" alt="peter">
+        <img id="explosion1" src="tanks/tanksres/miniExplosion1.png" alt="explosion1">
+        <img id="explosion2" src="tanks/tanksres/miniExplosion2.png" alt="explosion2">
+        <img id="explosion3" src="tanks/tanksres/miniExplosion3.png" alt="explosion3">
+        <img id="explosion4" src="tanks/tanksres/miniExplosion4.png" alt="explosion4">
+        <img id="explosion5" src="tanks/tanksres/miniExplosion5.png" alt="explosion5">
+        <img id="100" src="tanks/tanksres/100.png" alt="100">
+        <img id="spawn1" src="tanks/tanksres/spawn1.png" alt="spawn1">
+        <img id="spawn2" src="tanks/tanksres/spawn2.png" alt="spawn2">
+        <img id="spawn3" src="tanks/tanksres/spawn3.png" alt="spawn3">
+        <img id="spawn4" src="tanks/tanksres/spawn4.png" alt="spawn4">
+        <img id="invincible1" src="tanks/tanksres/invincible1.png" alt ="invincible1">
+        <img id="invincible2" src="tanks/tanksres/invincible2.png" alt ="invincible2">
+        <img id="blank" src="tanks/tanksres/empty.png" alt="blank">
+        <img id="pause" src="tanks/tanksres/pause.png" alt="pause">
+        <img id="stageScreen" src="tanks/tanksres/stageHalf.png" alt="stageScreen">
+        <img id="gameOverScreen" src="tanks/tanksres/GameOverScreen.png" alt = "gameOverScreen">
+        <img id="highScoreScreen" src="tanks/tanksres/HighScoreScreen.png" alt="highScoreScreen">
+        <img id="mainScreen" src="tanks/tanksres/MainScreen.png" alt="mainScreen">
+        
+        <img id="starUp" src="tanks/tanksres/starwars/aWingUp.png" alt = "xwing">
+        <img id="starDown" src="tanks/tanksres/starwars/aWingDown.png" alt = "xwing">
+        <img id="starLeft" src="tanks/tanksres/starwars/aWingLeft.png" alt = "xwing">
+        <img id="starRight" src="tanks/tanksres/starwars/aWingRight.png" alt = "xwing">
+        <img id="starUp2" src="tanks/tanksres/starwars/xwingUp.png" alt = "xwing">
+        <img id="starDown2" src="tanks/tanksres/starwars/xwingDown.png" alt = "xwing">
+        <img id="starLeft2" src="tanks/tanksres/starwars/xwingLeft.png" alt = "xwing">
+        <img id="starRight2" src="tanks/tanksres/starwars/xwingRight.png" alt = "xwing">
+        <img id="starUp3" src="tanks/tanksres/starwars/bWingUp.png" alt = "xwing">
+        <img id="starDown3" src="tanks/tanksres/starwars/bWingDown.png" alt = "xwing">
+        <img id="starLeft3" src="tanks/tanksres/starwars/bWingLeft.png" alt = "xwing">
+        <img id="starRight3" src="tanks/tanksres/starwars/bWingRight.png" alt = "xwing">
+        <img id="starUp4" src="tanks/tanksres/starwars/milleniumFalconUp.png" alt = "xwing">
+        <img id="starDown4" src="tanks/tanksres/starwars/milleniumFalconDown.png" alt = "xwing">
+        <img id="starLeft4" src="tanks/tanksres/starwars/milleniumFalconLeft.png" alt = "xwing">
+        <img id="starRight4" src="tanks/tanksres/starwars/milleniumFalconRight.png" alt = "xwing">
+        
+        <img id="star2Up" src="tanks/tanksres/starwars/aWingUp2.png" alt = "xwing">
+        <img id="star2Down" src="tanks/tanksres/starwars/aWingDown2.png" alt = "xwing">
+        <img id="star2Left" src="tanks/tanksres/starwars/aWingLeft2.png" alt = "xwing">
+        <img id="star2Right" src="tanks/tanksres/starwars/aWingRight2.png" alt = "xwing">
+        
+        <img id="tieFighterUp" src ="tanks/tanksres/starwars/tieFighterUp.png" alt ="tieup">
+        <img id="tieFighterDown" src ="tanks/tanksres/starwars/tieFighterDown.png" alt ="tied">
+        <img id="tieFighterLeft" src ="tanks/tanksres/starwars/tieFighterLeft.png" alt ="tieleft">
+        <img id="tieFighterRight" src ="tanks/tanksres/starwars/tieFighterRight.png" alt ="tieright">
+        <img id="tieFighterBUp" src ="tanks/tanksres/starwars/tieFighterBUp.png" alt ="tieup">
+        <img id="tieFighterBDown" src ="tanks/tanksres/starwars/tieFighterBDown.png" alt ="tied">
+        <img id="tieFighterBLeft" src ="tanks/tanksres/starwars/tieFighterBLeft.png" alt ="tieleft">
+        <img id="tieFighterBRight" src ="tanks/tanksres/starwars/tieFighterBRight.png" alt ="tieright">
+        
+        <img id="tieInterceptorUp" src ="tanks/tanksres/starwars/tieInterceptorUp.png" alt ="tieup">
+        <img id="tieInterceptorDown" src ="tanks/tanksres/starwars/tieInterceptorDown.png" alt ="tied">
+        <img id="tieInterceptorLeft" src ="tanks/tanksres/starwars/tieInterceptorLeft.png" alt ="tieleft">
+        <img id="tieInterceptorRight" src ="tanks/tanksres/starwars/tieInterceptorRight.png" alt ="tieright">
+        <img id="tieInterceptorBUp" src ="tanks/tanksres/starwars/tieInterceptorBUp.png" alt ="tieup">
+        <img id="tieInterceptorBDown" src ="tanks/tanksres/starwars/tieInterceptorBDown.png" alt ="tied">
+        <img id="tieInterceptorBLeft" src ="tanks/tanksres/starwars/tieInterceptorBLeft.png" alt ="tieleft">
+        <img id="tieInterceptorBRight" src ="tanks/tanksres/starwars/tieInterceptorBRight.png" alt ="tieright">
+        
+        <img id="tieHunterUp" src ="tanks/tanksres/starwars/tieHunterUp.png" alt ="tieup">
+        <img id="tieHunterDown" src ="tanks/tanksres/starwars/tieHunterDown.png" alt ="tied">
+        <img id="tieHunterLeft" src ="tanks/tanksres/starwars/tieHunterLeft.png" alt ="tieleft">
+        <img id="tieHunterRight" src ="tanks/tanksres/starwars/tieHunterRight.png" alt ="tieright">
+        <img id="tieHunterBUp" src ="tanks/tanksres/starwars/tieHunterBUp.png" alt ="tieup">
+        <img id="tieHunterBDown" src ="tanks/tanksres/starwars/tieHunterBDown.png" alt ="tied">
+        <img id="tieHunterBLeft" src ="tanks/tanksres/starwars/tieHunterBLeft.png" alt ="tieleft">
+        <img id="tieHunterBRight" src ="tanks/tanksres/starwars/tieHunterBRight.png" alt ="tieright">
+        
+        <img id="tieBomberUp" src ="tanks/tanksres/starwars/tieBomberUp.png" alt ="tieup">
+        <img id="tieBomberDown" src ="tanks/tanksres/starwars/tieBomberDown.png" alt ="tied">
+        <img id="tieBomberLeft" src ="tanks/tanksres/starwars/tieBomberLeft.png" alt ="tieleft">
+        <img id="tieBomberRight" src ="tanks/tanksres/starwars/tieBomberRight.png" alt ="tieright">
+        <img id="tieBomberUpA" src ="tanks/tanksres/starwars/tieBomberUpA.png" alt ="tieup">
+        <img id="tieBomberDownA" src ="tanks/tanksres/starwars/tieBomberDownA.png" alt ="tied">
+        <img id="tieBomberLeftA" src ="tanks/tanksres/starwars/tieBomberLeftA.png" alt ="tieleft">
+        <img id="tieBomberRightA" src ="tanks/tanksres/starwars/tieBomberRightA.png" alt ="tieright">
+        <img id="tieBomberUpB" src ="tanks/tanksres/starwars/tieBomberUpB.png" alt ="tieup">
+        <img id="tieBomberDownB" src ="tanks/tanksres/starwars/tieBomberDownB.png" alt ="tied">
+        <img id="tieBomberLeftB" src ="tanks/tanksres/starwars/tieBomberLeftB.png" alt ="tieleft">
+        <img id="tieBomberRightB" src ="tanks/tanksres/starwars/tieBomberRightB.png" alt ="tieright">
+        <img id="tieBomberUpC" src ="tanks/tanksres/starwars/tieBomberUpC.png" alt ="tieup">
+        <img id="tieBomberDownC" src ="tanks/tanksres/starwars/tieBomberDownC.png" alt ="tied">
+        <img id="tieBomberLeftC" src ="tanks/tanksres/starwars/tieBomberLeftC.png" alt ="tieleft">
+        <img id="tieBomberRightC" src ="tanks/tanksres/starwars/tieBomberRightC.png" alt ="tieright">
+        <img id="tieBomberBUp" src ="tanks/tanksres/starwars/tieBomberBUp.png" alt ="tieup">
+        <img id="tieBomberBDown" src ="tanks/tanksres/starwars/tieBomberBDown.png" alt ="tied">
+        <img id="tieBomberBLeft" src ="tanks/tanksres/starwars/tieBomberBLeft.png" alt ="tieleft">
+        <img id="tieBomberBRight" src ="tanks/tanksres/starwars/tieBomberBRight.png" alt ="tieright">
+        
+        
+        <img id ="protonTorpedoUp" src ="tanks/tanksres/starwars/protonUp.png" alt ="protonup">
+        <img id ="protonTorpedoDown" src ="tanks/tanksres/starwars/protonDown.png" alt ="protondown">
+        <img id ="protonTorpedoLeft" src ="tanks/tanksres/starwars/protonLeft.png" alt ="protonleft">
+        <img id ="protonTorpedoRight" src ="tanks/tanksres/starwars/protonRight.png" alt ="protonright">
+        <img id ="tieLaserUpDown" src="tanks/tanksres/starwars/tieBulletUpDown.png" alt ="tieupdown">
+        <img id ="tieLaserLeftRight" src="tanks/tanksres/starwars/tieBulletLeftRight.png" alt ="tieleftright">
+<!--        <img id="protonTorpedoUp" src ="tanks/tanksres/starwars/protonTorpedoUp.png" alt ="protonUp">
+        <img id="protonTorpedoDown" src ="tanks/tanksres/starwars/protonTorpedoDown.png" alt ="protonDown">
+        <img id="protonTorpedoLeft" src ="tanks/tanksres/starwars/protonTorpedoLeft.png" alt ="protonLeft">
+        <img id="protonTorpedoRight" src ="tanks/tanksres/starwars/protonTorpedoRight.png" alt ="protonRight">
+        <img id="tieLaserUp" src ="tanks/tanksres/starwars/tieLaserUp.png" alt ="tieLaserUp">
+        <img id="tieLaserDown" src ="tanks/tanksres/starwars/tieLaserDown.png" alt ="tieLaserDown">
+        <img id="tieLaserLeft" src ="tanks/tanksres/starwars/tieLaserLeft.png" alt ="tieLaserLeft">
+        <img id="tieLaserRight" src ="tanks/tanksres/starwars/tieLaserRight.png" alt ="tieLaserRight">-->
+        <img id="planetFlag" src="tanks/tanksres/starwars/planetFlag.png" alt="planetflag">
+        <img id="astroid" src =" tanks/tanksres/starwars/astroid.png" alt ="astroid">
+        <img id="astroidTree" src =" tanks/tanksres/starwars/astroidTree.png" alt ="astroid">
+        <img id="astroidWater1" src =" tanks/tanksres/starwars/astroidWater1.png" alt ="astroid">
+        <img id="astroidWater2" src =" tanks/tanksres/starwars/astroidWater2.png" alt ="astroid">
+        <img id="astroidWater3" src =" tanks/tanksres/starwars/astroidWater3.png" alt ="astroid">
+        <img id="steelAstroid" src =" tanks/tanksres/starwars/steelAstroid.png" alt ="astroidsteel">
+        <img id="stars" src ="tanks/tanksres/starwars/stars.jpg" alt ="stars">
+        <img id="shield1" src="tanks/tanksres/starwars/shield1.png" alt ="shield">
+        <img id="shield2" src="tanks/tanksres/starwars/shield2.png" alt ="shield">
+        
+        <img id="starExplosion1" src ="tanks/tanksres/starwars/explosion1.png" alt ="starexplosion">
+        <img id="starExplosion2" src ="tanks/tanksres/starwars/explosion2.png" alt ="starexplosion">
+        <img id="starExplosion3" src ="tanks/tanksres/starwars/explosion3.png" alt ="starexplosion">
+        <img id="starExplosion4" src ="tanks/tanksres/starwars/explosion4.png" alt ="starexplosion">
+        <img id="starExplosion5" src ="tanks/tanksres/starwars/explosion5.png" alt ="starexplosion">
+        <img id="starExplosion6" src ="tanks/tanksres/starwars/explosion6.png" alt ="starexplosion">
+        <img id="starExplosion7" src ="tanks/tanksres/starwars/explosion7.png" alt ="starexplosion">
+        <img id="starExplosion8" src ="tanks/tanksres/starwars/explosion8.png" alt ="starexplosion">
+        <img id="starExplosion9" src ="tanks/tanksres/starwars/explosion9.png" alt ="starexplosion">
+        <img id="starExplosion10" src ="tanks/tanksres/starwars/explosion10.png" alt ="starexplosion">
+        <img id="starExplosion11" src ="tanks/tanksres/starwars/explosion11.png" alt ="starexplosion">
+        <img id="starExplosion12" src ="tanks/tanksres/starwars/explosion12.png" alt ="starexplosion">
+        <img id="starExplosion13" src ="tanks/tanksres/starwars/explosion13.png" alt ="starexplosion">
+        
+        <img id ="bombermanUp" src ="tanks/tanksres/bomberman/bombermanUp.png" alt =" up">
+        <img id ="bombermanDown" src ="tanks/tanksres/bomberman/bombermanDown.png" alt =" up">
+        <img id ="bombermanLeft" src ="tanks/tanksres/bomberman/bombermanLeft.png" alt =" up">
+        <img id ="bombermanRight" src ="tanks/tanksres/bomberman/bombermanRight.png" alt =" up">
+        <img id ="bomb" src="tanks/tanksres/bomberman/bomb.png" alt =" bomb">
+        <img id ="bombermanBrick" src ="tanks/tanksres/bomberman/bombermanBrick.png" alt = "title">
+        <img id ="bombermanSteel" src ="tanks/tanksres/bomberman/bombermanSteel.png" alt = "title">
+        <img id ="bombermanMainScreen" src ="tanks/tanksres/bomberman/bomberTitle.png" alt = "title">
+        <img id ="bombermanBackground1" src ="tanks/tanksres/bomberman/bombermanBackground1.png" alt = "title">
+        
+        <img id ="bombermanEnemy1" src="tanks/tanksres/bomberman/enemy1.png" alt = "enemy">
+        <img id ="bombermanEnemy2" src="tanks/tanksres/bomberman/enemy2.png" alt = "enemy">
+        <img id ="bombermanEnemy3" src="tanks/tanksres/bomberman/enemy3.png" alt = "enemy">
+        <img id ="bombermanEnemyBullet" src="tanks/tanksres/bomberman/enemyBullet.png" alt = "enemy">
+        
+        
+        <audio id="shoot" src="tanks/tanksres/PlayerShoot.wav"></audio>
+        <audio id="enemyDestroyed" src="tanks/tanksres/EnemyDestroyed.wav"></audio>
+        <audio id="BulletHitWall" src="tanks/tanksres/BulletHitWall.wav"></audio>
+        <audio id="theme" src="tanks/tanksres/Themes.wav"></audio>
+        <audio id="starWarsTheme" src="tanks/tanksres/starwars/sounds/starWarsTheme.wav"></audio>
+        <audio id="imperialMarch" src="tanks/tanksres/starwars/sounds/imperialMarch.wav"></audio>
+        <audio id="pauseSound" src="tanks/tanksres/Pause.wav"></audio>
+        <audio id="bigEnemyHit" src="tanks/tanksres/BigEnemyHit.wav"></audio>
+        <audio id="brickDestroyed" src="tanks/tanksres/BrickDestroyed.wav"></audio>
+        <audio id="gotStar" src="tanks/tanksres/GotStar.wav"></audio>
+        <audio id="gotLife" src="tanks/tanksres/GotLife.wav"></audio>
+        <audio id="countingPoints" src="tanks/tanksres/Points.wav"></audio>
+        <audio id="enemyShoot" src="tanks/tanksres/Enemy1Shoot.wav"></audio>
+        <audio id="gameOverSound" src="tanks/tanksres/Game Over.wav"></audio>
+        <audio id="highScoreSound" src="tanks/tanksres/High Score.wav"></audio>
+        <audio id="love" src="audio/love.wav"></audio>
+        <audio id="tieFire" src ="tanks/tanksres/starwars/sounds/tiefire.wav"></audio>
+        <audio id="tieMove" src ="tanks/tanksres/starwars/sounds/tieMove.wav"></audio>
+        <audio id="fireProton" src ="tanks/tanksres/starwars/sounds/xwingProton.wav"></audio>
+        <audio id="bombermanTheme" src ="tanks/tanksres/bomberman/sounds/bombermanTheme.ogg"></audio>
+        </div>
+       <script type ="text/javascript" src="game.js"></script>
+       <!--<script type ="text/javascript" src="editorial.js"></script>-->
+    </body>
+</html>

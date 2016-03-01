@@ -1,0 +1,109 @@
+body{
+    
+    background-color:black;
+    color:white;
+    text-align:center;
+    font-family: courier;
+}
+
+#logo{
+    
+    color: orange;
+}
+
+#score{
+    
+    text-align:left;
+    padding-left:20%;
+}
+
+h3{
+    font-size:100%;
+}
+
+a{
+	
+	color:white;
+	text-decoration: none;
+}
+a:hover{
+	color: gold;
+	line-height:40%;
+	
+}
+h2{
+    line-height:40%;
+}
+
+a#offline{
+	color:maroon;
+}
+a:hover#offline{
+	color:red;
+}
+
+a#online{
+	color:darkgreen;
+}
+a:hover#online{
+	color:lime;
+}
+
+#download{
+	
+	font-size:150%;
+	color:blue;
+}
+
+h1{
+	font-size:1000%;
+	line-height:0%;
+	color:maroon;
+}
+
+
+
+img{
+	/*transition: transform 2s;*/
+	/*-webkit-transition: -webkit-transform 2s;*/
+	
+}
+img:hover{
+	/*transform: rotate(360deg);*/
+	/*-webkit-transform: rotate(360deg);*/
+	/*transform: origin 20% 40%;*/
+	/*-webkit-transform-origin: 500% 100%;*/
+}
+
+#mainContent {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: xx-large;
+	font-weight: bold;
+	background-color: #E3F0FB;
+	border-radius: 4px;
+	padding: 10px;
+	text-align: center;
+}
+.buttonStyle {
+	border-radius: 4px;
+	border: thin solid #F0E020;
+	padding: 5px;
+	background-color: #F8F094;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-weight: bold;
+	color: #663300;
+	width: 75px;
+}
+
+.buttonStyle:hover {
+	border: thin solid #FFCC00;
+	background-color: #FCF9D6;
+	color: #996633;
+	cursor: pointer;
+}
+.buttonStyle:active {
+	border: thin solid #99CC00;
+	background-color: #F5FFD2;
+	color: #669900;
+	cursor: pointer;
+}
