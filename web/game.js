@@ -265,6 +265,11 @@ var stageScreen = document.getElementById("stageScreen");
         
         var bomberman = false;
         var bombermanBackground1 = document.getElementById("bombermanBackground1");
+        
+        var scores = [];
+        var playerName;
+        var startUp = true;
+            
         //var noSelected = false;
         
         //document.getElementById("connectButton").onclick = checkMobileKeys();
@@ -383,7 +388,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
             };
             rawFile.send(null);*/
-            hiScore = new Score("fuk", 100);
+            //hiScore = new Score("fuk", 100);
         }
         
         function checkMobileKeys(){
@@ -474,14 +479,18 @@ var stageScreen = document.getElementById("stageScreen");
         
         function gameOver(){
             destroyFlag();
-            imperialThemeAudio.pause();
-            imperialThemeAudio.currentTime = 0;
+            if(starWars){
+                imperialThemeAudio.pause();
+                imperialThemeAudio.currentTime = 0;
+            }
+            
             ctx.fillStyle = "maroon";
             ctx.fillText("Game over", gameOX, gameOY);
             if(gameOY > (canvas.height/2) + grid){
                 gameOY-=5;    
             }else{
                 countingScore = true;
+                Echo.initialize();
             }
         }
         
@@ -1680,6 +1689,19 @@ var stageScreen = document.getElementById("stageScreen");
             var readyExpression = "Is " + fullName + " okay?";
             var enterToContinue = "press enter to continue";
             var nameReady;
+            if(startUp){
+                Echo.initialize();
+                startUp = false;
+            }
+            
+            if(scores.length <=0){
+                Echo.socket.send("request");
+            }
+            else{
+                scores.sort(sortScores);
+                hiScore = scores[0];
+                Echo.socket.close();
+            }
             if(char1Set && char2Set && char3Set){
                 nameReady = true;
             }else{
@@ -1958,67 +1980,75 @@ var stageScreen = document.getElementById("stageScreen");
         }
         
         function scoresScreen(){
-            var bigFont = 36;
-            var scores = [];
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = bigFont +"px nes";
-            ctx.fillStyle = "brown";
-            ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
-            ctx.font = "12px nes";
-            //read all scores from the scores.txt and draw them on the screen
-            var file = "scores.txt";
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function() {
+            var startDrawing = true;
+            
+            if(startDrawing){
+                var bigFont = 36;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = bigFont +"px nes";
+                ctx.fillStyle = "brown";
+                ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
+                ctx.font = "12px nes";
                 var start = 100;
                 var x = 0;
                 var y = 0;
                 var yStretch = 20;
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var allText = rawFile.responseText;
-                        var items = allText.split(" ");
-                        for (var i = 0; i < items.length; i+=2) {
-                            var score = new Score(items[i], parseInt(items[i+1]));
-                            
-                            scores.push(score);
-                        }
-                        /*for (var i = 0; i < items.length; i++) {
-                            if(i > 0 && i % 14 == 0){
-                                x = x + 150;
-                                y = 0;
-                            }
-                            if(i % 2 == 0){
-                                ctx.fillStyle = "maroon";
-                                ctx.fillText(items[i], 0+  x, (y * 20)+start);
-                            }else{
-                                ctx.fillStyle = "orange";
-                                ctx.fillText(items[i], 50 + x, ((y-1) * 20)+start);
-                            }
-                            y++;
-                            
-                }*/
-                    }
-                }
-                scores.sort(sortScores);
                 for (var i = 0; i < scores.length; i++) {
-                    var score = scores[i];
+                    //var score = scores[i];
                     if(i > 0 && i % 14 == 0){
                         x = x + 150;
                         y = 0;
                     }
                     ctx.fillStyle = "maroon";
-                    ctx.fillText(score.name, 0 +  x, ((y-1 ) * yStretch)+start);
+//                    ctx.fillText(scores[i], 0 +  x, ((y-1 ) * yStretch)+start);
+                    ctx.fillText(scores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
                     ctx.fillStyle = "orange";
-                    ctx.fillText(score.score, 50 + x, ((y-1) * yStretch)+start);
+//                    ctx.fillText(scores[i+1], 50 + x, ((y-1) * yStretch)+start);
+                    ctx.fillText(scores[i].score, 50 + x, ((y-1) * yStretch)+start);
                     y++;
                 }
-                console.log(scores[scores.length-1]);
-            };
-            rawFile.send(null);
+                //console.log(scores[scores.length-1]);
+                /*read all scores from the scores.txt and draw them on the screen
+    //            var file = "scores.txt";
+    //            var rawFile = new XMLHttpRequest();
+    //            rawFile.open("GET", file, false);
+    //            rawFile.onreadystatechange = function() {
+    //                if (rawFile.readyState === 4) {
+    //                    if (rawFile.status === 200 || rawFile.status == 0) {
+    //                        var allText = rawFile.responseText;
+    //                        var items = allText.split(" ");
+    //                        for (var i = 0; i < items.length; i+=2) {
+    //                            var score = new Score(items[i], parseInt(items[i+1]));
+    //                            
+    //                            scores.push(score);
+    //                        }
+    //                        /*for (var i = 0; i < items.length; i++) {
+    //                            if(i > 0 && i % 14 == 0){
+    //                                x = x + 150;
+    //                                y = 0;
+    //                            }
+    //                            if(i % 2 == 0){
+    //                                ctx.fillStyle = "maroon";
+    //                                ctx.fillText(items[i], 0+  x, (y * 20)+start);
+    //                            }else{
+    //                                ctx.fillStyle = "orange";
+    //                                ctx.fillText(items[i], 50 + x, ((y-1) * 20)+start);
+    //                            }
+    //                            y++;
+    //                            
+    //                }
+    //                    }
+    //                }
+    //                
+    //            };
+    //            rawFile.send(null);*/
+                ctx.fillStyle = "white";
+                ctx.fillText("press escape to go back", 0, canvas.height - 16);
+                //Echo.socket.close();
+
+            }
             
-            ctx.fillStyle = "white";
-            ctx.fillText("press escape to go back", 0, canvas.height - 16);
+            
         }
         
         function sortScores(score1, score2){
@@ -2209,6 +2239,7 @@ var stageScreen = document.getElementById("stageScreen");
                 console.log("Error: WebSocket is not supported by this browser");
                 return;
             }
+            socketOpen = true;
 
             Echo.socket.onopen = function(message){
                 console.log("Info: connection opened");
@@ -2261,6 +2292,7 @@ var stageScreen = document.getElementById("stageScreen");
             };
             Echo.socket.onclose = function(){
                 console.log("Info: connection closed");
+                socketOpen = false;
             };
             Echo.socket.onmessage = function(message){
 
@@ -2287,6 +2319,17 @@ var stageScreen = document.getElementById("stageScreen");
                     
                 if(result[0] === "map"){
                     clientCommands.updateMap(result);
+                }
+                
+                if(result[0] === "scores"){
+//                    for(var i = 1; i < result.length; i++){
+//                        scores.push(result[i]);
+//                    }
+                    for(var i = 1; i < result.length; i+=2){
+                        var score = new Score(result[i], result[i+1]);
+                        scores.push(score);
+                    }
+                    console.log(scores);
                 }
 /*                if(message.data === "pause"){
                         console.log("WE ARE PAUSING OR WHAT?");
@@ -2398,20 +2441,33 @@ var stageScreen = document.getElementById("stageScreen");
         Echo.initialize = function(){
             var ep = "/WebTanks/";
             var whereToConnect;
-            var where = prompt("Where do you want to connect?", "linode");
-            if(where === "linode"){
+            var where = "p";//prompt("Where do you want to connect?", "linode");
+            if(where === "linode")
+            {
                 whereToConnect = "85.159.209.9:8181";
-            }else{
+            }
+            else{
                 whereToConnect = window.location.host;
             }
-            alert("Connecting to " + whereToConnect);
+            console.log("Connecting to " + whereToConnect);
             if(window.location.protocol == "http:"){
                 Echo.connect("ws://" + whereToConnect + ep);
-            } else{
+            } 
+            else{
                 Echo.connect("wss://" + whereToConnect + ep);
             }
             console.log("got protocol");
         };
+        
+        function saveScore(){
+//            if(Echo === undefined){
+                //Echo.initialize();
+                Echo.socket.send("score " + name + " " + player1Score);
+                scores = [];
+                Echo.socket.send("request");
+                Echo.socket.close();
+//          
+        }
 
         function readTextFile(number) {
             var file = "tanks/tanksres/Maps/Map" + number + ".txt";
@@ -2507,6 +2563,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 powerUp.type = "none";
                 powerUp.image = document.getElementById("blank");
+                player1Score += 500;
             }
         }    //player
 
@@ -2611,6 +2668,9 @@ var stageScreen = document.getElementById("stageScreen");
                         else if(scoresSelected){
                             scoresScreenMenu = true;
                             mainMenu = false;
+                            //scores = [];
+//                            Echo.initialize();
+//                            Echo.socket.send("request");
                         }
                         else{
                             if(starWarsThemePlaying){
@@ -2712,6 +2772,7 @@ var stageScreen = document.getElementById("stageScreen");
                         if(readyToGoToMainMenu){
                             readyToGoToMainMenu = false;
                             mainMenu = true;
+                            saveScore();
                             initializeVariables();
                         }
                         else if(nextGameOverPressed){
@@ -3113,7 +3174,7 @@ var stageScreen = document.getElementById("stageScreen");
                     down: true,
                     think: function() {
                             var doSomething = Math.floor((Math.random() * 100) + 1);
-                            if(doSomething >= 1 && doSomething <= 4){
+                            if(doSomething >= 1 && doSomething <= 4 && starWars){
                                 playAudioFile("tieMove");
                             }
                             if (doSomething == 1) { //up
@@ -4182,7 +4243,10 @@ var stageScreen = document.getElementById("stageScreen");
             loadNextMap();
 //            imperialThemeAudio.pause();
 //            imperialThemeAudio.currentTime = 0;
-            startImperialTheme();
+            if(starWars){
+                startImperialTheme();
+            }
+            
         }        //stage
 
         function drawMapTerrainImages() {
@@ -4244,20 +4308,10 @@ var stageScreen = document.getElementById("stageScreen");
             }
         }   
         
-//        var x = 0;
-//        var y = 0;
-//        var z = 0;
-//        function draw(){
-//                    x+=.5 % 360;
-//                    y+=.5 % 360;
-//                    z+=.5 % 360;
-//                    //rotates p5.js logo .5 degrees on every axis each frame.
-//                    canvas.rotate(x,y,z);
-//        }//stage draw
-
         function updateGraphics() {
             if(nameScreenMenu){
                 nameScreen();
+                
             }
             else if(begunStarWars){
                 //draw();
@@ -4408,6 +4462,7 @@ var stageScreen = document.getElementById("stageScreen");
                         }
                     }
                     if(player1Score > hiScore.score){
+                        hiScore = new Score(name, player1Score);
                         gotHiScore = true;
                     }
                     if (settingUpMap) {
