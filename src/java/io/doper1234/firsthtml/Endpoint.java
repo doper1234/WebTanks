@@ -150,5 +150,24 @@ public class Endpoint {
         }
         broadcast("scores " + scoresToSend);
         System.out.println(scoresToSend);
+        sendScoresAndDates();
+    }
+    
+    private void sendScoresAndDates(){
+        SQLDatabaseReader reader = new SQLDatabaseReader();
+        ArrayList<Score> scores = reader.getScores();
+        String scoresToSend = "";
+        
+        for (int i = 0; i < scores.size(); i++) {
+            if(i < scores.size()-1){
+                scoresToSend = scoresToSend + "" + scores.get(i).getPlayerName() + " " + scores.get(i).getPlayerScore() + " " + scores.get(i).getDate() + " ";
+            }else{
+                scoresToSend = scoresToSend + "" + scores.get(i).getPlayerName() + " " + scores.get(i).getPlayerScore() + " " + scores.get(i).getDate();
+            }
+            
+            //scoresToSend = Integer.toString(scores.get(i).getPlayerScore());
+        }
+        broadcast("topten " + scoresToSend);
+        System.out.println(scoresToSend);
     }
 }
