@@ -1706,11 +1706,6 @@ var stageScreen = document.getElementById("stageScreen");
             if(Echo.socket.readyState ===1){
                 Echo.socket.send("highest");
             }
-            else{
-                //scores.sort(sortScores);
-                //hiScore = scores[0];
-                //Echo.socket.close();
-            }
             if(char1Set && char2Set && char3Set){
                 nameReady = true;
             }else{
@@ -2034,7 +2029,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 else{
                     if(Echo.socket.readyState === 1){
-                        topTenScores = [];
+                        //topTenScores = [];
                         Echo.socket.send("topten");
                         console.log("socket open, getting top ten?")
                     }
@@ -2064,6 +2059,8 @@ var stageScreen = document.getElementById("stageScreen");
             ctx.font = "12px nes";
             ctx.fillStyle = "white";
             ctx.fillText("press escape to go back", 0, canvas.height - 16);
+            
+            console.log("high scores?  " + highScoresScreenMenu + " how many? " + topTenScores.length + " how many total" + scores.length);
         }
         
         function sortScores(score1, score2){
@@ -2337,17 +2334,18 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 
                 if(result[0] === "topten"){
-                    //topTenScores = [];
+                    topTenScores = [];
                     for(var i = 1; i < result.length; i+=4){
                         var score = new DateScore(result[i], result[i+1], result[i+2], result[i+3]);
                         topTenScores.push(score);
                     }
-                    console.log(topTenScores);
+                    console.log("wtf man" +topTenScores);
                     //topTenScores.sort(sortScores);
                     Echo.socket.close();
                 }
                 
                 if(result[0] === "scores"){
+                    scores = [];
                     for(var i = 1; i < result.length; i+=2){
                         var score = new Score(result[i], result[i+1]);
                         scores.push(score);
@@ -2770,6 +2768,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 else if(scoresScreenMenu){
                     if(keynum == 27){
+                       start = 86; 
                        mainMenu = true;
                        scoresScreenMenu = false;
                        scoresScreenSelected = false;
