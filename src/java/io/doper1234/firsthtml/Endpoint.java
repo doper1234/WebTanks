@@ -74,6 +74,10 @@ public class Endpoint {
             saveScore(message);
         }else if(message.startsWith("request")){
             sendScores();
+        }else if(message.startsWith("topten")){
+            sendScoresAndDates();
+        }else if(message.startsWith("highest")){
+            sendHighestScore();
         }else{
             broadcast(message);
         }
@@ -153,9 +157,17 @@ public class Endpoint {
         sendScoresAndDates();
     }
     
+    private void sendHighestScore(){
+        SQLDatabaseReader reader = new SQLDatabaseReader();
+        ArrayList<Score> scores = reader.getHighScore();
+        String scoresToSend = scores.get(0).getPlayerName() + " " + scores.get(0).getPlayerScore() + " " + scores.get(0).getDate();;
+        broadcast("highest " + scoresToSend);
+        System.out.println(scoresToSend);
+    }
+    
     private void sendScoresAndDates(){
         SQLDatabaseReader reader = new SQLDatabaseReader();
-        ArrayList<Score> scores = reader.getScores();
+        ArrayList<Score> scores = reader.getTopTenScores();
         String scoresToSend = "";
         
         for (int i = 0; i < scores.size(); i++) {
@@ -165,7 +177,6 @@ public class Endpoint {
                 scoresToSend = scoresToSend + "" + scores.get(i).getPlayerName() + " " + scores.get(i).getPlayerScore() + " " + scores.get(i).getDate();
             }
             
-            //scoresToSend = Integer.toString(scores.get(i).getPlayerScore());
         }
         broadcast("topten " + scoresToSend);
         System.out.println(scoresToSend);

@@ -1703,12 +1703,12 @@ var stageScreen = document.getElementById("stageScreen");
                 startUp = false;
             }
             
-            if(scores.length <=0){
-                Echo.socket.send("request");
+            if(Echo.socket.readyState ===1){
+                Echo.socket.send("highest");
             }
             else{
-                scores.sort(sortScores);
-                hiScore = scores[0];
+                //scores.sort(sortScores);
+                //hiScore = scores[0];
                 //Echo.socket.close();
             }
             if(char1Set && char2Set && char3Set){
@@ -2009,6 +2009,9 @@ var stageScreen = document.getElementById("stageScreen");
                 var bigFont = 36;
                 var yStretch = 20;
                 if(!highScoresScreenMenu){
+                    if(Echo.socket.readyState === 1){
+                        Echo.socket.send("request");
+                    }
                     ctx.font = "10px nes";
                     for (var i = 0; i < scores.length; i++) {
                         if(i > 0 && i % Math.floor(scores.length/3) == 0){
@@ -2030,6 +2033,11 @@ var stageScreen = document.getElementById("stageScreen");
                     ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
                 }
                 else{
+                    if(Echo.socket.readyState === 1){
+                        topTenScores = [];
+                        Echo.socket.send("topten");
+                        console.log("socket open, getting top ten?")
+                    }
                     ctx.font = bigFont +"px nes";
                     ctx.fillStyle = "brown";
                     ctx.fillText("high scores",canvas.width/2 - (bigFont*5.5),bigFont);
@@ -2329,25 +2337,29 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 
                 if(result[0] === "topten"){
+                    //topTenScores = [];
                     for(var i = 1; i < result.length; i+=4){
                         var score = new DateScore(result[i], result[i+1], result[i+2], result[i+3]);
                         topTenScores.push(score);
                     }
                     console.log(topTenScores);
-                    topTenScores.sort(sortScores);
+                    //topTenScores.sort(sortScores);
                     Echo.socket.close();
                 }
                 
                 if(result[0] === "scores"){
-//                    for(var i = 1; i < result.length; i++){
-//                        scores.push(result[i]);
-//                    }
                     for(var i = 1; i < result.length; i+=2){
                         var score = new Score(result[i], result[i+1]);
                         scores.push(score);
                     }
                     scoresInitialized = true;
                     console.log(scores);
+                    Echo.socket.close();
+                }
+                
+                if(result[0] ==="highest"){
+                    hiScore = new Score(result[1], result[2]);
+                    Echo.socket.close();
                 }
 /*                if(message.data === "pause"){
                         console.log("WE ARE PAUSING OR WHAT?");
@@ -2766,18 +2778,16 @@ var stageScreen = document.getElementById("stageScreen");
                     }
                     if(!scoresScreenSelected){
                         if(keynum == 38){
-                           if(start <=86){
-                               scoresImageX = bigF;
-                               scoresImageY = canvas.height/2 - bigF*2; 
-                           }
+                            scoresImageX = bigF;
+                            scoresImageY = canvas.height/2 - bigF*2; 
+                           
                         }
                         if(keynum == 40){
-                           if(start >= -((20* Math.round(scores.length/3 + 1)))+canvas.height){
-                                scoresImageX = bigF*2;
-                                scoresImageY = canvas.height/2;
-                           }
+                            scoresImageX = bigF*2;
+                            scoresImageY = canvas.height/2;
                         }
                         if(keynum == 13){
+                            Echo.initialize();
                             scoresScreenSelected = true;
                             if((scoresImageX === bigF) && (scoresImageY === canvas.height/2 - bigF*2)){
                                 highScoresScreenMenu = true;

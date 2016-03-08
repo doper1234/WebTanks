@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.doper1234.firsthtml;
 
 import java.sql.Connection;
@@ -90,7 +85,7 @@ public class SQLDatabaseReader {
             // Do something with the Connection
             Connection conn = connectToDataBase();
             Statement m_Statement = conn.createStatement();
-            String query = "SELECT * FROM high_scores";
+            String query = "SELECT * FROM high_scores ORDER BY player_score DESC";
             ResultSet m_ResultSet = m_Statement.executeQuery(query);
             while (m_ResultSet.next()) {
                 scores.add(new Score(m_ResultSet.getString(1), Integer.parseInt(m_ResultSet.getString(2)), m_ResultSet.getString(3)));
