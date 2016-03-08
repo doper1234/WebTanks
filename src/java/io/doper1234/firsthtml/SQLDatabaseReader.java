@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import javax.swing.JOptionPane;
 /**
  *
@@ -25,12 +26,17 @@ public class SQLDatabaseReader {
     
     public static void main(String[] args) {
         SQLDatabaseReader reader = new SQLDatabaseReader();
+        reader.fillWithRandomScores(60);
         reader.getScores();
-        String name = "";
-        int score = -1;
-        reader.saveScoreByInput(name, score);
-        reader.saveScore("MRD", 50000);
-        reader.getScores();
+//        String name = "";
+//        int score ++6= -1;
+//        //reader.saveScoreByInput(name, score);
+//        reader.saveScore("MRD", 50000);
+//        reader.getScores();
+//        System.out.println("top ten");
+//        reader.getTopTenScores();
+//        System.out.println("highest score");
+//        reader.getHighScore();
         
         
     }
@@ -75,7 +81,7 @@ public class SQLDatabaseReader {
         String password = "hoffman";
         scores = new ArrayList<>();
         conn = DriverManager.getConnection(url, username, password);
-        System.out.println("Successful connection.");
+        //System.out.println("Successful connection.");
         return conn;
     }
     
@@ -85,6 +91,54 @@ public class SQLDatabaseReader {
             Connection conn = connectToDataBase();
             Statement m_Statement = conn.createStatement();
             String query = "SELECT * FROM high_scores";
+            ResultSet m_ResultSet = m_Statement.executeQuery(query);
+            while (m_ResultSet.next()) {
+                scores.add(new Score(m_ResultSet.getString(1), Integer.parseInt(m_ResultSet.getString(2)), m_ResultSet.getString(3)));
+                //System.out.println(m_ResultSet.getString(1) + " " + m_ResultSet.getString(2));
+            }
+            for (Score score : scores) {
+                System.out.println(score.getPlayerName() + " " + score.getPlayerScore() + " " + score.getDate());
+            }
+        } catch (SQLException ex) {
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+        
+        return scores;
+    }
+    
+    public ArrayList<Score> getTopTenScores(){
+        try {
+            // Do something with the Connection
+            Connection conn = connectToDataBase();
+            Statement m_Statement = conn.createStatement();
+            String query = "SELECT * FROM high_scores ORDER BY player_score DESC LIMIT 10";
+            ResultSet m_ResultSet = m_Statement.executeQuery(query);
+            while (m_ResultSet.next()) {
+                scores.add(new Score(m_ResultSet.getString(1), Integer.parseInt(m_ResultSet.getString(2)), m_ResultSet.getString(3)));
+                //System.out.println(m_ResultSet.getString(1) + " " + m_ResultSet.getString(2));
+            }
+            for (Score score : scores) {
+                System.out.println(score.getPlayerName() + " " + score.getPlayerScore() + " " + score.getDate());
+            }
+        } catch (SQLException ex) {
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+        
+        return scores;
+    }
+    
+    public ArrayList<Score> getHighScore(){
+        try {
+            // Do something with the Connection
+            Connection conn = connectToDataBase();
+            Statement m_Statement = conn.createStatement();
+            String query = "SELECT * FROM high_scores ORDER BY player_score DESC LIMIT 1";
             ResultSet m_ResultSet = m_Statement.executeQuery(query);
             while (m_ResultSet.next()) {
                 scores.add(new Score(m_ResultSet.getString(1), Integer.parseInt(m_ResultSet.getString(2)), m_ResultSet.getString(3)));
@@ -132,6 +186,20 @@ public class SQLDatabaseReader {
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
+        }
+    }
+    
+    public void fillWithRandomScores(int numberOfScores){
+        //int ij = (int)(Math.random() * (max - min) + min);
+        //90000
+        Random rand = new Random();
+        for (int i = 0; i < numberOfScores; i++) {
+            int score = (rand.nextInt((90/*000*/) + 1))*100;
+            char char1 = (char)(rand.nextInt((90 - 65) + 1) + 65);
+            char char2 = (char)(rand.nextInt((90 - 65) + 1) + 65);
+            char char3 = (char)(rand.nextInt((90 - 65) + 1) + 65);
+            String name = "" + char1 + char2 + char3;
+            saveScore(name,score);
         }
     }
 }

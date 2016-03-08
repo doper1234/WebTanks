@@ -265,8 +265,22 @@ var stageScreen = document.getElementById("stageScreen");
         
         var bomberman = false;
         var bombermanBackground1 = document.getElementById("bombermanBackground1");
-        //var noSelected = false;
+        var starWarsGameOverText = "game over";
         
+        var scores = [];
+        var topTenScores = [];
+        var playerName;
+        var startUp = true;
+        var scoresInitialized = false;
+        var highScoresScreenMenu = false;
+        var scoresScreenSelected = false;
+        var bigF = 30;
+        var scoresImageX = bigF;
+        var scoresImageY = canvas.height/2 - bigF*2;
+        //ctx.drawImage(playerRight,bigFont, canvas.height/2 - bigFont*2);
+        //ctx.drawImage(playerRight,bigFont*2, canvas.height/2 );
+        var start = 86;
+        //var noSelected = false;
         //document.getElementById("connectButton").onclick = checkMobileKeys();
         
         var player2;
@@ -383,7 +397,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
             };
             rawFile.send(null);*/
-            hiScore = new Score("fuk", 100);
+            //hiScore = new Score("fuk", 100);
         }
         
         function checkMobileKeys(){
@@ -474,14 +488,18 @@ var stageScreen = document.getElementById("stageScreen");
         
         function gameOver(){
             destroyFlag();
-            imperialThemeAudio.pause();
-            imperialThemeAudio.currentTime = 0;
+            if(starWars){
+                imperialThemeAudio.pause();
+                imperialThemeAudio.currentTime = 0;
+            }
+            
             ctx.fillStyle = "maroon";
             ctx.fillText("Game over", gameOX, gameOY);
             if(gameOY > (canvas.height/2) + grid){
                 gameOY-=5;    
             }else{
                 countingScore = true;
+                Echo.initialize();
             }
         }
         
@@ -1680,6 +1698,19 @@ var stageScreen = document.getElementById("stageScreen");
             var readyExpression = "Is " + fullName + " okay?";
             var enterToContinue = "press enter to continue";
             var nameReady;
+            if(startUp){
+                Echo.initialize();
+                startUp = false;
+            }
+            
+            if(scores.length <=0){
+                Echo.socket.send("request");
+            }
+            else{
+                scores.sort(sortScores);
+                hiScore = scores[0];
+                //Echo.socket.close();
+            }
             if(char1Set && char2Set && char3Set){
                 nameReady = true;
             }else{
@@ -1878,7 +1909,19 @@ var stageScreen = document.getElementById("stageScreen");
                 }
             }
             else{
-                ctx.drawImage(gameOverScreen,0,0);
+                if(starWars){
+                    var fontSize = 40;
+                    ctx.clearRect(0,0,canvas.width, canvas.height);
+                    ctx.font = fontSize + "px nes";
+                    ctx.fillStyle = "yellow";
+                    ctx.fillText(starWarsGameOverText, canvas.width/2 - fontSize * starWarsGameOverText.length/2, canvas.height/2);
+                    //ctx.fillText(player1Score.toString(), canvas.width/2 - fontSize * player1Score.length/2, canvas.height/2 + fontSize);
+                    //ctx.fillText("why not", 0, 0);
+                }
+                else{
+                    ctx.drawImage(gameOverScreen,0,0);
+                }
+                
             }
             
             
@@ -1957,66 +2000,60 @@ var stageScreen = document.getElementById("stageScreen");
             
         }
         
-        function scoresScreen(){
-            var bigFont = 36;
-            var scores = [];
+        function scoresScreen(displayTopTen){
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = bigFont +"px nes";
-            ctx.fillStyle = "brown";
-            ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
-            ctx.font = "12px nes";
-            //read all scores from the scores.txt and draw them on the screen
-            var file = "scores.txt";
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function() {
-                var start = 100;
-                var x = 0;
+            if(scoresScreenSelected){
+                var x = 2;
                 var y = 0;
+                var xSpacing = 35;
+                var bigFont = 36;
                 var yStretch = 20;
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var allText = rawFile.responseText;
-                        var items = allText.split(" ");
-                        for (var i = 0; i < items.length; i+=2) {
-                            var score = new Score(items[i], parseInt(items[i+1]));
-                            
-                            scores.push(score);
+                if(!highScoresScreenMenu){
+                    ctx.font = "10px nes";
+                    for (var i = 0; i < scores.length; i++) {
+                        if(i > 0 && i % Math.floor(scores.length/3) == 0){
+                            x = x + 150;
+                            y = 0;
                         }
-                        /*for (var i = 0; i < items.length; i++) {
-                            if(i > 0 && i % 14 == 0){
-                                x = x + 150;
-                                y = 0;
-                            }
-                            if(i % 2 == 0){
-                                ctx.fillStyle = "maroon";
-                                ctx.fillText(items[i], 0+  x, (y * 20)+start);
-                            }else{
-                                ctx.fillStyle = "orange";
-                                ctx.fillText(items[i], 50 + x, ((y-1) * 20)+start);
-                            }
-                            y++;
-                            
-                }*/
+                        ctx.fillStyle = "maroon";
+                        ctx.fillText(scores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
+                        ctx.fillStyle = "orange";
+                        ctx.fillText(scores[i].score, xSpacing + x, ((y-1) * yStretch)+start);
+                        y++;
                     }
+                    ctx.clearRect(0,0,canvas.width,50);
+                    ctx.clearRect(0, canvas.height - 16*3,canvas.width,canvas.height);
+                    ctx.strokeStyle = "orange";
+                    ctx.strokeRect(0,50,canvas.width,canvas.height - 16*6);
+                    ctx.font = bigFont +"px nes";
+                    ctx.fillStyle = "brown";
+                    ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
                 }
-                scores.sort(sortScores);
-                for (var i = 0; i < scores.length; i++) {
-                    var score = scores[i];
-                    if(i > 0 && i % 14 == 0){
-                        x = x + 150;
-                        y = 0;
-                    }
-                    ctx.fillStyle = "maroon";
-                    ctx.fillText(score.name, 0 +  x, ((y-1 ) * yStretch)+start);
-                    ctx.fillStyle = "orange";
-                    ctx.fillText(score.score, 50 + x, ((y-1) * yStretch)+start);
-                    y++;
+                else{
+                    ctx.font = bigFont +"px nes";
+                    ctx.fillStyle = "brown";
+                    ctx.fillText("high scores",canvas.width/2 - (bigFont*5.5),bigFont);
+                    ctx.font = "14px nes";
+                    for (var i = 0; i < topTenScores.length; i++) {
+                        ctx.fillStyle = "white";
+                        ctx.fillText(topTenScores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].score, 50 + x, ((y-1) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].date, 150 + x, ((y-1) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].time, canvas.width - (14*topTenScores[i].time.length), ((y-1) * yStretch)+start);
+                        y++;
+                    } 
                 }
-                console.log(scores[scores.length-1]);
-            };
-            rawFile.send(null);
-            
+            }
+            else{
+                var bigFont = 30;
+                ctx.font = bigFont +"px nes";
+                ctx.fillStyle = "brown";
+                ctx.drawImage(playerRight,scoresImageX, scoresImageY);
+                //ctx.drawImage(playerRight,bigFont*2, canvas.height/2 );
+                ctx.fillText("high scores",canvas.width - bigFont*(11),canvas.height/2 - bigFont);
+                ctx.fillText("all scores",canvas.width - bigFont*(10),canvas.height/2 + bigFont);
+            }
+            ctx.font = "12px nes";
             ctx.fillStyle = "white";
             ctx.fillText("press escape to go back", 0, canvas.height - 16);
         }
@@ -2209,6 +2246,7 @@ var stageScreen = document.getElementById("stageScreen");
                 console.log("Error: WebSocket is not supported by this browser");
                 return;
             }
+            socketOpen = true;
 
             Echo.socket.onopen = function(message){
                 console.log("Info: connection opened");
@@ -2261,6 +2299,7 @@ var stageScreen = document.getElementById("stageScreen");
             };
             Echo.socket.onclose = function(){
                 console.log("Info: connection closed");
+                socketOpen = false;
             };
             Echo.socket.onmessage = function(message){
 
@@ -2287,6 +2326,28 @@ var stageScreen = document.getElementById("stageScreen");
                     
                 if(result[0] === "map"){
                     clientCommands.updateMap(result);
+                }
+                
+                if(result[0] === "topten"){
+                    for(var i = 1; i < result.length; i+=4){
+                        var score = new DateScore(result[i], result[i+1], result[i+2], result[i+3]);
+                        topTenScores.push(score);
+                    }
+                    console.log(topTenScores);
+                    topTenScores.sort(sortScores);
+                    Echo.socket.close();
+                }
+                
+                if(result[0] === "scores"){
+//                    for(var i = 1; i < result.length; i++){
+//                        scores.push(result[i]);
+//                    }
+                    for(var i = 1; i < result.length; i+=2){
+                        var score = new Score(result[i], result[i+1]);
+                        scores.push(score);
+                    }
+                    scoresInitialized = true;
+                    console.log(scores);
                 }
 /*                if(message.data === "pause"){
                         console.log("WE ARE PAUSING OR WHAT?");
@@ -2398,20 +2459,40 @@ var stageScreen = document.getElementById("stageScreen");
         Echo.initialize = function(){
             var ep = "/WebTanks/";
             var whereToConnect;
-            var where = prompt("Where do you want to connect?", "linode");
-            if(where === "linode"){
+            var where = "p";//prompt("Where do you want to connect?", "linode");
+            if(where === "linode")
+            {
                 whereToConnect = "85.159.209.9:8181";
-            }else{
+            }
+            else{
                 whereToConnect = window.location.host;
             }
-            alert("Connecting to " + whereToConnect);
+            console.log("Connecting to " + whereToConnect);
             if(window.location.protocol == "http:"){
                 Echo.connect("ws://" + whereToConnect + ep);
-            } else{
+            } 
+            else{
                 Echo.connect("wss://" + whereToConnect + ep);
             }
             console.log("got protocol");
         };
+        
+        function saveScore(){
+//            if(Echo === undefined){
+                //Echo.initialize();
+                Echo.socket.send("score " + name + " " + player1Score);
+                scores = [];
+                Echo.socket.send("request");
+                Echo.socket.close();
+//          
+        }
+        
+        function DateScore(name, score, date, time){
+            this.name = name;
+            this.score = score;
+            this.date = date;
+            this.time = time.substring(0,5);
+        }
 
         function readTextFile(number) {
             var file = "tanks/tanksres/Maps/Map" + number + ".txt";
@@ -2507,6 +2588,7 @@ var stageScreen = document.getElementById("stageScreen");
                 }
                 powerUp.type = "none";
                 powerUp.image = document.getElementById("blank");
+                player1Score += 500;
             }
         }    //player
 
@@ -2611,6 +2693,9 @@ var stageScreen = document.getElementById("stageScreen");
                         else if(scoresSelected){
                             scoresScreenMenu = true;
                             mainMenu = false;
+                            //scores = [];
+//                            Echo.initialize();
+//                            Echo.socket.send("request");
                         }
                         else{
                             if(starWarsThemePlaying){
@@ -2672,10 +2757,46 @@ var stageScreen = document.getElementById("stageScreen");
                     
                 }
                 else if(scoresScreenMenu){
-                     if(keynum == 27){
-                        mainMenu = true;
-                        scoresScreenMenu = false;
+                    if(keynum == 27){
+                       mainMenu = true;
+                       scoresScreenMenu = false;
+                       scoresScreenSelected = false;
+                       highScoresScreenMenu = false;
+                       
                     }
+                    if(!scoresScreenSelected){
+                        if(keynum == 38){
+                           if(start <=86){
+                               scoresImageX = bigF;
+                               scoresImageY = canvas.height/2 - bigF*2; 
+                           }
+                        }
+                        if(keynum == 40){
+                           if(start >= -((20* Math.round(scores.length/3 + 1)))+canvas.height){
+                                scoresImageX = bigF*2;
+                                scoresImageY = canvas.height/2;
+                           }
+                        }
+                        if(keynum == 13){
+                            scoresScreenSelected = true;
+                            if((scoresImageX === bigF) && (scoresImageY === canvas.height/2 - bigF*2)){
+                                highScoresScreenMenu = true;
+                            }
+                        }
+                    }
+                    else if(!highScoresScreenMenu){
+                        if(keynum == 38){
+                           if(start <=86){
+                               start+=4; 
+                           }
+                        }
+                        if(keynum == 40){
+                           if(start >= -((20* Math.round(scores.length/3 + 1)))+canvas.height){
+                               start-=4; 
+                           }
+                        }
+                    }
+                    
                 }
                 
                 else{
@@ -2712,12 +2833,21 @@ var stageScreen = document.getElementById("stageScreen");
                         if(readyToGoToMainMenu){
                             readyToGoToMainMenu = false;
                             mainMenu = true;
+                            saveScore();
                             initializeVariables();
                         }
                         else if(nextGameOverPressed){
                             if (gotHiScore){
+                                if(starWars){
+                                    starWarsGameOverText = "hi score";
+                                    stopAudioFile("gameOverStarWars");
+                                    playAudioFile("highScoreStarWars");
+                                }else{
+                                    playAudioFile("highScoreSound");
+                                }
+                                
                                 gameOverScreen = document.getElementById("highScoreScreen");
-                                playAudioFile("highScoreSound");
+                                
                                 ctx.font = "32px nesfont";
                                 ctx.fillText(player1Score, canvas.width/2, canvas.height/2);
                                 hiScore.name = name;
@@ -2731,7 +2861,11 @@ var stageScreen = document.getElementById("stageScreen");
                         else if(!nextGameOverPressed){
                             ctx.drawImage(gameOverScreen,0,0);
                             writeToFile(new Score(name, player1Score));
-                            playAudioFile("gameOverSound");
+                            if(starWars){
+                                playAudioFile("gameOverStarWars");
+                            }else{
+                                playAudioFile("gameOverSound");
+                            }
                             nextGameOverPressed = true; 
                         }
                     }
@@ -3020,8 +3154,13 @@ var stageScreen = document.getElementById("stageScreen");
                             nextGameOverPressed = true;    
                         }
                         else if (player1Score > hiScore){
-                            gameOverScreen = document.getElementById("highScoreScreen");
-                            playAudioFile("highScoreSound");
+                            if(starWars){
+                                playAudioFile("highScoreStarWArs");
+                            }else{
+                                gameOverScreen = document.getElementById("highScoreScreen");
+                                playAudioFile("highScoreSound");
+                            }
+                            
                         }
                         
                         
@@ -3113,7 +3252,7 @@ var stageScreen = document.getElementById("stageScreen");
                     down: true,
                     think: function() {
                             var doSomething = Math.floor((Math.random() * 100) + 1);
-                            if(doSomething >= 1 && doSomething <= 4){
+                            if(doSomething >= 1 && doSomething <= 4 && starWars){
                                 playAudioFile("tieMove");
                             }
                             if (doSomething == 1) { //up
@@ -4182,7 +4321,10 @@ var stageScreen = document.getElementById("stageScreen");
             loadNextMap();
 //            imperialThemeAudio.pause();
 //            imperialThemeAudio.currentTime = 0;
-            startImperialTheme();
+            if(starWars){
+                startImperialTheme();
+            }
+            
         }        //stage
 
         function drawMapTerrainImages() {
@@ -4244,20 +4386,10 @@ var stageScreen = document.getElementById("stageScreen");
             }
         }   
         
-//        var x = 0;
-//        var y = 0;
-//        var z = 0;
-//        function draw(){
-//                    x+=.5 % 360;
-//                    y+=.5 % 360;
-//                    z+=.5 % 360;
-//                    //rotates p5.js logo .5 degrees on every axis each frame.
-//                    canvas.rotate(x,y,z);
-//        }//stage draw
-
         function updateGraphics() {
             if(nameScreenMenu){
                 nameScreen();
+                
             }
             else if(begunStarWars){
                 //draw();
@@ -4388,7 +4520,7 @@ var stageScreen = document.getElementById("stageScreen");
                 passcodeScreen();
             }
             else if(scoresScreenMenu){
-                scoresScreen();
+                scoresScreen(false);
             }
             else{
                 if (!paused && !settingScene && !countingScore) {
@@ -4408,6 +4540,7 @@ var stageScreen = document.getElementById("stageScreen");
                         }
                     }
                     if(player1Score > hiScore.score){
+                        hiScore = new Score(name, player1Score);
                         gotHiScore = true;
                     }
                     if (settingUpMap) {
@@ -4659,8 +4792,13 @@ var stageScreen = document.getElementById("stageScreen");
                 audio.play();
             }
             else {
-                audio.currentTime = 0
+                audio.currentTime = 0;
             }
+        }
+        function stopAudioFile(title) {
+            var audio = document.getElementById(title);
+            audio.pause();
+            audio.currentTime = 0;
         }
         
         function startStarWarsTheme(){

@@ -272,9 +272,15 @@ var stageScreen = document.getElementById("stageScreen");
         var playerName;
         var startUp = true;
         var scoresInitialized = false;
-            
+        var highScoresScreenMenu = false;
+        var scoresScreenSelected = false;
+        var bigF = 30;
+        var scoresImageX = bigF;
+        var scoresImageY = canvas.height/2 - bigF*2;
+        //ctx.drawImage(playerRight,bigFont, canvas.height/2 - bigFont*2);
+        //ctx.drawImage(playerRight,bigFont*2, canvas.height/2 );
+        var start = 86;
         //var noSelected = false;
-        
         //document.getElementById("connectButton").onclick = checkMobileKeys();
         
         var player2;
@@ -1995,48 +2001,59 @@ var stageScreen = document.getElementById("stageScreen");
         }
         
         function scoresScreen(displayTopTen){
-            var bigFont = 36;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                var start = 100;
-                var x = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(scoresScreenSelected){
+                var x = 2;
                 var y = 0;
+                var xSpacing = 35;
+                var bigFont = 36;
                 var yStretch = 20;
-            if(displayTopTen){
-                ctx.font = bigFont +"px nes";
-                ctx.fillStyle = "brown";
-                ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
-                ctx.font = "12px nes";
-                for (var i = 0; i < scores.length; i++) {
-                    if(i > 0 && i % 14 == 0){
-                        x = x + 150;
-                        y = 0;
+                if(!highScoresScreenMenu){
+                    ctx.font = "10px nes";
+                    for (var i = 0; i < scores.length; i++) {
+                        if(i > 0 && i % Math.floor(scores.length/3) == 0){
+                            x = x + 150;
+                            y = 0;
+                        }
+                        ctx.fillStyle = "maroon";
+                        ctx.fillText(scores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
+                        ctx.fillStyle = "orange";
+                        ctx.fillText(scores[i].score, xSpacing + x, ((y-1) * yStretch)+start);
+                        y++;
                     }
-                    ctx.fillStyle = "maroon";
-                    ctx.fillText(scores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
-                    ctx.fillStyle = "orange";
-                    ctx.fillText(scores[i].score, 50 + x, ((y-1) * yStretch)+start);
-                    y++;
+                    ctx.clearRect(0,0,canvas.width,50);
+                    ctx.clearRect(0, canvas.height - 16*3,canvas.width,canvas.height);
+                    ctx.strokeStyle = "orange";
+                    ctx.strokeRect(0,50,canvas.width,canvas.height - 16*6);
+                    ctx.font = bigFont +"px nes";
+                    ctx.fillStyle = "brown";
+                    ctx.fillText("scores",canvas.width/2 - bigFont*3,bigFont);
+                }
+                else{
+                    ctx.font = bigFont +"px nes";
+                    ctx.fillStyle = "brown";
+                    ctx.fillText("high scores",canvas.width/2 - (bigFont*5.5),bigFont);
+                    ctx.font = "14px nes";
+                    for (var i = 0; i < topTenScores.length; i++) {
+                        ctx.fillStyle = "white";
+                        ctx.fillText(topTenScores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].score, 50 + x, ((y-1) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].date, 150 + x, ((y-1) * yStretch)+start);
+                        ctx.fillText(topTenScores[i].time, canvas.width - (14*topTenScores[i].time.length), ((y-1) * yStretch)+start);
+                        y++;
+                    } 
                 }
             }
             else{
+                var bigFont = 30;
                 ctx.font = bigFont +"px nes";
                 ctx.fillStyle = "brown";
-                ctx.fillText("high scores",canvas.width/2 - (bigFont*5.5),bigFont);
-                ctx.font = "14px nes";
-               for (var i = 0; i < topTenScores.length; i++) {
-//                    if(i > 0 && i % 14 == 0){
-//                        x = x + 150;
-//                        y = 0;
-//                    }
-                    ctx.fillStyle = "white";
-                    ctx.fillText(topTenScores[i].name, 0 +  x, ((y-1 ) * yStretch)+start);
-                    ctx.fillText(topTenScores[i].score, 50 + x, ((y-1) * yStretch)+start);
-                    ctx.fillText(topTenScores[i].date, 150 + x, ((y-1) * yStretch)+start);
-                    ctx.fillText(topTenScores[i].time, canvas.width - (14*topTenScores[i].time.length), ((y-1) * yStretch)+start);
-                    y++;
-                } 
+                ctx.drawImage(playerRight,scoresImageX, scoresImageY);
+                //ctx.drawImage(playerRight,bigFont*2, canvas.height/2 );
+                ctx.fillText("high scores",canvas.width - bigFont*(11),canvas.height/2 - bigFont);
+                ctx.fillText("all scores",canvas.width - bigFont*(10),canvas.height/2 + bigFont);
             }
+            ctx.font = "12px nes";
             ctx.fillStyle = "white";
             ctx.fillText("press escape to go back", 0, canvas.height - 16);
         }
@@ -2740,10 +2757,46 @@ var stageScreen = document.getElementById("stageScreen");
                     
                 }
                 else if(scoresScreenMenu){
-                     if(keynum == 27){
-                        mainMenu = true;
-                        scoresScreenMenu = false;
+                    if(keynum == 27){
+                       mainMenu = true;
+                       scoresScreenMenu = false;
+                       scoresScreenSelected = false;
+                       highScoresScreenMenu = false;
+                       
                     }
+                    if(!scoresScreenSelected){
+                        if(keynum == 38){
+                           if(start <=86){
+                               scoresImageX = bigF;
+                               scoresImageY = canvas.height/2 - bigF*2; 
+                           }
+                        }
+                        if(keynum == 40){
+                           if(start >= -((20* Math.round(scores.length/3 + 1)))+canvas.height){
+                                scoresImageX = bigF*2;
+                                scoresImageY = canvas.height/2;
+                           }
+                        }
+                        if(keynum == 13){
+                            scoresScreenSelected = true;
+                            if((scoresImageX === bigF) && (scoresImageY === canvas.height/2 - bigF*2)){
+                                highScoresScreenMenu = true;
+                            }
+                        }
+                    }
+                    else if(!highScoresScreenMenu){
+                        if(keynum == 38){
+                           if(start <=86){
+                               start+=4; 
+                           }
+                        }
+                        if(keynum == 40){
+                           if(start >= -((20* Math.round(scores.length/3 + 1)))+canvas.height){
+                               start-=4; 
+                           }
+                        }
+                    }
+                    
                 }
                 
                 else{
