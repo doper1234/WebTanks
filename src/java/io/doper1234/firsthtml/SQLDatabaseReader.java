@@ -18,6 +18,15 @@ import javax.swing.JOptionPane;
 public class SQLDatabaseReader {
     
     ArrayList<Score> scores;
+    private final String dataBaseURL;
+    
+    public SQLDatabaseReader(String dataBaseURL){
+        this.dataBaseURL = dataBaseURL;
+    }
+    
+    public SQLDatabaseReader(){
+        dataBaseURL = "localhost:3306";
+    }
     
     public static void main(String[] args) {
         SQLDatabaseReader reader = new SQLDatabaseReader();
@@ -71,7 +80,7 @@ public class SQLDatabaseReader {
         }
         Connection conn = null;
         String databaseName = "tanks_scores";
-        String url = "jdbc:mysql://localhost:3306/" + databaseName +"?autoReconnect=true&useSSL=false";
+        String url = "jdbc:mysql://"+ dataBaseURL +"/" + databaseName +"?autoReconnect=true&useSSL=false";
         String username = "root";
         String password = "hoffman";
         scores = new ArrayList<>();

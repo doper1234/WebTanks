@@ -277,6 +277,7 @@ var stageScreen = document.getElementById("stageScreen");
         var bigF = 30;
         var scoresImageX = bigF;
         var scoresImageY = canvas.height/2 - bigF*2;
+        var pageLoaded;
         //ctx.drawImage(playerRight,bigFont, canvas.height/2 - bigFont*2);
         //ctx.drawImage(playerRight,bigFont*2, canvas.height/2 );
         var start = 86;
@@ -789,6 +790,7 @@ var stageScreen = document.getElementById("stageScreen");
         }          //player
 
         function mobile() {
+            
             var uagent = navigator.userAgent.toLowerCase();
             if (uagent.search("windows") > -1) {
                 var div = document.getElementById("buttons");
@@ -1328,7 +1330,8 @@ var stageScreen = document.getElementById("stageScreen");
                                     pY = Math.floor(playerYLoc / 15);
                                 }
                             };
-            
+            alert("loaded");
+            pageLoaded = true;
         }
         
         function connectionToServer(){
@@ -2001,7 +2004,7 @@ var stageScreen = document.getElementById("stageScreen");
                 var x = 2;
                 var y = 0;
                 var xSpacing = 35;
-                var bigFont = 36;
+                var bigFont = 30;
                 var yStretch = 20;
                 if(!highScoresScreenMenu){
                     if(Echo.socket.readyState === 1){
@@ -2035,7 +2038,7 @@ var stageScreen = document.getElementById("stageScreen");
                     }
                     ctx.font = bigFont +"px nes";
                     ctx.fillStyle = "brown";
-                    ctx.fillText("high scores",canvas.width/2 - (bigFont*5.5),bigFont);
+                    ctx.fillText("top ten scores",canvas.width/2 - (bigFont*7),bigFont);
                     ctx.font = "14px nes";
                     for (var i = 0; i < topTenScores.length; i++) {
                         ctx.fillStyle = "white";
@@ -2059,8 +2062,6 @@ var stageScreen = document.getElementById("stageScreen");
             ctx.font = "12px nes";
             ctx.fillStyle = "white";
             ctx.fillText("press escape to go back", 0, canvas.height - 16);
-            
-            console.log("high scores?  " + highScoresScreenMenu + " how many? " + topTenScores.length + " how many total" + scores.length);
         }
         
         function sortScores(score1, score2){
@@ -2339,7 +2340,6 @@ var stageScreen = document.getElementById("stageScreen");
                         var score = new DateScore(result[i], result[i+1], result[i+2], result[i+3]);
                         topTenScores.push(score);
                     }
-                    console.log("wtf man" +topTenScores);
                     //topTenScores.sort(sortScores);
                     Echo.socket.close();
                 }
@@ -2469,7 +2469,7 @@ var stageScreen = document.getElementById("stageScreen");
         Echo.initialize = function(){
             var ep = "/WebTanks/";
             var whereToConnect;
-            var where = "p";//prompt("Where do you want to connect?", "linode");
+            var where = "linode";//prompt("Where do you want to connect?", "linode");
             if(where === "linode")
             {
                 whereToConnect = "85.159.209.9:8181";
@@ -2790,6 +2790,7 @@ var stageScreen = document.getElementById("stageScreen");
                             scoresScreenSelected = true;
                             if((scoresImageX === bigF) && (scoresImageY === canvas.height/2 - bigF*2)){
                                 highScoresScreenMenu = true;
+                                start *=1.5;
                             }
                         }
                     }
@@ -2805,6 +2806,7 @@ var stageScreen = document.getElementById("stageScreen");
                            }
                         }
                     }
+                    
                     
                 }
                 
@@ -4396,403 +4398,409 @@ var stageScreen = document.getElementById("stageScreen");
         }   
         
         function updateGraphics() {
-            if(nameScreenMenu){
-                nameScreen();
-                
-            }
-            else if(begunStarWars){
-                //draw();
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-                ctx.fillStyle = "blue";
-                ctx.font = "16px nes";
-                ctx.fillText("a long time ago on a ", 0, canvas.height/2);
-                ctx.fillText("server far, far away....", 0, canvas.height/2 + 16);
-                    
-                if(begunStarWarsCount >= 30){
-                    begunStarWars = false;
-                    mainMenu = true;
-                    passcodeScreenMenu = false;
+            if(pageLoaded == true){
+                if(nameScreenMenu){
+                    nameScreen();
+
                 }
-                begunStarWarsCount++;
-            }
-            else if(mainMenu){
-                canvas.style.borderColor = "black";
-                if(starWars){
-                    ctx.drawImage(stars, 0 ,0);
-                }
-                else{
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
-                var tankY = menuY + 250;
-                if(menu1Selected){
-                    tankY = menuY + 225;
-                }
-                if(menu2Selected){
-                   tankY = menuY + 250; 
-                }
-                if(passcodeSelected){
-                    tankY = menuY + 275;
-                }
-                if(menuOnlineSelected){
-                    tankY = menuY + 300;
-                }
-                if(scoresSelected){
-                    tankY = menuY + 325
-                }
-                if(starWars){
-                    if(!starWarsThemePlaying){
-                        startStarWarsTheme();
-                        starWarsThemePlaying = true;
+                else if(begunStarWars){
+                    //draw();
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.fillStyle = "blue";
+                    ctx.font = "16px nes";
+                    ctx.fillText("a long time ago on a ", 0, canvas.height/2);
+                    ctx.fillText("server far, far away....", 0, canvas.height/2 + 16);
+
+                    if(begunStarWarsCount >= 30){
+                        begunStarWars = false;
+                        mainMenu = true;
+                        passcodeScreenMenu = false;
                     }
-                    if(starWarsSize > 0){
-                        ctx.fillStyle = "yellow";
-                        ctx.font = starWarsSize + "px nes";
-                        ctx.fillText("Battle", canvas.width/2 - starWarsSize*3, canvas.height/2);
-                        ctx.fillText("City", canvas.width/2 - starWarsSize*2, canvas.height/2 + starWarsSize);
-                        starWarsSize--;
-                        menuY = 416;
-                    }else if(menuY > 0){
-                        menuY-=2;
-                    }
+                    begunStarWarsCount++;
                 }
-                else{
-                    ctx.drawImage(mainMenuImage, menuX, menuY);
-                }
-                if(starWars){
-                    var fontSize = 60;
-                    ctx.fillStyle = "yellow";
-                    ctx.font = fontSize + "px nes";
-                    ctx.fillText("Battle", canvas.width/2 - fontSize*3, menuY + fontSize*2);
-                    ctx.fillText("City", canvas.width/2 - fontSize*2, menuY + fontSize*3);
-                }else if(bomberman){
-                    var fontSize = 60;
-                    ctx.fillStyle = "red";
-                    ctx.font = fontSize + "px nes";
-                    ctx.fillText("Battle", canvas.width/2 - fontSize*3, menuY + fontSize*2);
-                    ctx.fillText("City", canvas.width/2 - fontSize*2, menuY + fontSize*3);
-                    ctx.fillStyle = "white";
-                }
-                ctx.font = "14px nes";
-                if(menuY > 0 && !starWars)
-                {
-                    menuY-=10
-                }else{
-                    ctx.drawImage(playerRight, canvas.width/2 - grid * 6, tankY);
-                }
-                
-                ctx.fillText("Hi- " + hiScore.name + " " + hiScore.score, canvas.width/2, menuY +20);
-                ctx.fillText("(c) 1980 1985 nameco ltd.", grid*4, menuY + 375);
-                ctx.fillText("all rights reserved", grid*6, menuY + 400);
-                if(menu1Selected){
-                    ctx.fillStyle = "orange"; 
-                }else{
-                    ctx.fillStyle = "white";
-                }
-                ctx.fillText("1 player", canvas.width/2 - grid * 3, menuY + 250);
-                if(menu2Selected){
-                    ctx.fillStyle = "orange"; 
-                }else{
-                    ctx.fillStyle = "white";
-                }
-                ctx.fillText("2 players", canvas.width/2 - grid * 3, menuY + 275);
-                if(passcodeSelected){
-                    ctx.fillStyle = "orange"; 
-                }else{
-                    ctx.fillStyle = "white";
-                }
-                ctx.fillText("Passcode", canvas.width/2 - grid * 3, menuY + 300);
-                if(menuOnlineSelected){
-                    if(!onlineConnection){
-                        ctx.fillStyle = "red";    
-                    }else{
-                        ctx.fillStyle = "lime";
-                    }
-                }else{
-                    if(!onlineConnection){
-                        ctx.fillStyle = "maroon";    
-                    }else{
-                        ctx.fillStyle = "green";
-                    }
-                }
-                ctx.fillText("online", canvas.width/2 - grid * 3, menuY + 325);
-                if(scoresSelected){
-                    ctx.fillStyle = "orange"; 
-                }else{
-                    ctx.fillStyle = "white";
-                }
-                ctx.fillText("scores", canvas.width/2 - grid * 3, menuY + 350);
-            }
-            else if(onlineScreenMenu){
-                onlineScreen();
-            }
-            else if(passcodeScreenMenu){
-                passcodeScreen();
-            }
-            else if(scoresScreenMenu){
-                scoresScreen(false);
-            }
-            else{
-                if (!paused && !settingScene && !countingScore) {
-                    if(onlineGame){
-                        Echo.socket.send(player.number + " " + playerXLoc + " " +  playerYLoc + " " + directionFacing);
-                    }
-                    
-                    if (enemies.length == 0 && spawnedEnemies >= 20) {
-                        //alert("enemies defeated");
-                        //nextMap();
-                        //setNewStage();
-                        imperialThemeAudio.pause();
-                        imperialThemeAudio.currentTime = 0;
-                        countingScore = true;
-                        if(onlineGame){
-                            Echo.socket.send("countingscore");
-                        }
-                    }
-                    if(player1Score > hiScore.score){
-                        hiScore = new Score(name, player1Score);
-                        gotHiScore = true;
-                    }
-                    if (settingUpMap) {
-                        readTextFile(mapNumber);
-                    }
+                else if(mainMenu){
+                    canvas.style.borderColor = "black";
                     if(starWars){
                         ctx.drawImage(stars, 0 ,0);
-                    }else if(bomberman){
-                        ctx.drawImage(bombermanBackground1, 0 ,0);
                     }
                     else{
-                       ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
                     }
-                    drawIce();
-                    if (map[pY][pX] == 6) {
-                        playerDeltaX = 10;
-                        playerDeltaX = 10;
+                    var tankY = menuY + 250;
+                    if(menu1Selected){
+                        tankY = menuY + 225;
                     }
-                    else {
-                        playerDeltaX = 5;
-                        playerDeltaY = 5;
+                    if(menu2Selected){
+                       tankY = menuY + 250; 
                     }
-                    if(playerIsDead){
-                        player = document.getElementById("blank");
+                    if(passcodeSelected){
+                        tankY = menuY + 275;
                     }
-                    if(lostALifeAnimation){
-                        lostALife();
+                    if(menuOnlineSelected){
+                        tankY = menuY + 300;
                     }
-                    ctx.drawImage(player, playerXLoc, playerYLoc); //draw Player
-                    //ctx.drawImage(peter, peterX, peterY); //draw Peter
-                    if(twoPlayerGame){
-                        player2.update();
+                    if(scoresSelected){
+                        tankY = menuY + 325
                     }
-                    didPlayerGetPowerUp();
-                    if(timerStop){
-                        timerIsStopped();
-                    }
-                    if(playerInvincible && !playerIsDead){
-                        doInvinciblity();
-                    }
-                    for (var i = 0; i < enemies.length; i++) {
-                        var e = enemies[i];
-                        if(host){
-                            Echo.socket.send("enemy " + i + " locations " + e.x + " " + e.y);
+                    if(starWars){
+                        if(!starWarsThemePlaying){
+                            startStarWarsTheme();
+                            starWarsThemePlaying = true;
                         }
-                        spawnEnemyAnimation(e);
-                        enemyDestroyedAnimation(e);
-                        collisionWithEnemyBullet(e);
-                        for(var j = 0; j < e.enemyBullets.length; j++){
-                                var b = e.enemyBullets[j];
-                                ctx.drawImage(b.image, b.bx, b.by);
-                                if (!b.destroyed) {
-                                    if (b.direction == "right") {
-                                        if (b.bx >= canvas.width) {
-                                            b.destroyed = true;
-                                            playAudioFile("BulletHitWall");
-                                        }
-                                        else {
-                                            b.bx += bulletSpeed;
-                                        }
-                                    }
-                                    if (b.direction == "left") {
-                                        if (b.bx <= 0) {
-                                            b.destroyed = true;
-                                            playAudioFile("BulletHitWall");
-                                        }
-                                        b.bx -= bulletSpeed;
-                                    }
-                                    if (b.direction == "up") {
-                                        if (b.by <= 0) {
-                                            b.destroyed = true;
-                                            playAudioFile("BulletHitWall");
-                                        }
-                                        b.by -= bulletSpeed;
-                                    }
-                                    if (b.direction == "down") {
-                                        if (b.by >= canvas.height) {
-                                            b.destroyed = true;
-                                            playAudioFile("BulletHitWall");
-                                        }
-                                        b.by += bulletSpeed;
-                                    }
-                                }
-                                else {
-                                    if (b.explosion == 0) {
-                                        b.bx = b.bx - 8;
-                                        b.by = b.by - 8;
-                                    }
-                                    enemyBulletExplosionAnimation(b,e);
-                                }
-                            }
-                        if (!e.spawning && e.alive) {
-                            if(e.blinking){
-                                blinkAnimation(e);
-                            }
-                            collisionWithBullet(e);
-                            //collisionWithTerrain(e);
-                            //collisionWithAnotherTank(e);
-                            if(!timerStop){
-                                if(host || !onlineGame){
-                                    
-                                }
-                                e.think();
-                                if(!collisionWithAnotherTank(e)){
-                                    if (e.left && e.canGoLeft()) {
-                                    if (e.x >= e.speed) {
-                                        e.x -= e.speed;
-                                    }
-                                    }else if (e.right && e.canGoRight()) {
-                                        if (e.x + e.speed < (canvas.width - grid * 2)) {
-                                            e.x += e.speed;
-                                        }
-                                    }else if (e.up && e.canGoUp()) {
-                                        if (e.y >= e.speed) {
-                                            e.y -= e.speed;
-                                        }
-                                    }else if (e.down && e.canGoDown()) {
-                                        if (e.y + e.speed < (canvas.height - grid * 2)) {
-                                            e.y += e.speed;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        ctx.drawImage(e.currentImage, e.x, e.y);
-                    }
-    
-                    if(!gameIsOver){
-                        if (left && collisionWithPlayer() != "left") {
-                            goLeft();
-                        }
-                        if (right && collisionWithPlayer() != "right") {
-                            goRight();
-                        }
-                        if (up && collisionWithPlayer() != "up") {
-                            goUp();
-                        }
-                        if (down&& collisionWithPlayer() != "down") {
-                            goDown();
+                        if(starWarsSize > 0){
+                            ctx.fillStyle = "yellow";
+                            ctx.font = starWarsSize + "px nes";
+                            ctx.fillText("Battle", canvas.width/2 - starWarsSize*3, canvas.height/2);
+                            ctx.fillText("City", canvas.width/2 - starWarsSize*2, canvas.height/2 + starWarsSize);
+                            starWarsSize--;
+                            menuY = 416;
+                        }else if(menuY > 0){
+                            menuY-=2;
                         }
                     }
-    
-                    //else{
-                    drawMapTerrainImages();
-                    //}
-                    ctx.drawImage(powerUp.image, powerUp.x, powerUp.y);
-                    for (var i = 0; i < bullets.length; i++) {
-                        var b = bullets[i];
-                        ctx.drawImage(b.image, b.bx, b.by);
-    
-                        if (!b.destroyed) {
-                            if (b.direction == "right") {
-                                if (b.bx >= canvas.width) {
-                                    b.destroyed = true;
-                                    playAudioFile("BulletHitWall");
-                                }
-                                else {
-                                    b.bx += bulletSpeed;
-                                }
+                    else{
+                        ctx.drawImage(mainMenuImage, menuX, menuY);
+                    }
+                    if(starWars){
+                        var fontSize = 60;
+                        ctx.fillStyle = "yellow";
+                        ctx.font = fontSize + "px nes";
+                        ctx.fillText("Battle", canvas.width/2 - fontSize*3, menuY + fontSize*2);
+                        ctx.fillText("City", canvas.width/2 - fontSize*2, menuY + fontSize*3);
+                    }else if(bomberman){
+                        var fontSize = 60;
+                        ctx.fillStyle = "red";
+                        ctx.font = fontSize + "px nes";
+                        ctx.fillText("Battle", canvas.width/2 - fontSize*3, menuY + fontSize*2);
+                        ctx.fillText("City", canvas.width/2 - fontSize*2, menuY + fontSize*3);
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.font = "14px nes";
+                    if(menuY > 0 && !starWars)
+                    {
+                        menuY-=10
+                    }else{
+                        ctx.drawImage(playerRight, canvas.width/2 - grid * 6, tankY);
+                    }
+
+                    ctx.fillText("Hi- " + hiScore.name + " " + hiScore.score, canvas.width/2, menuY +20);
+                    ctx.fillText("(c) 1980 1985 nameco ltd.", grid*4, menuY + 375);
+                    ctx.fillText("all rights reserved", grid*6, menuY + 400);
+                    if(menu1Selected){
+                        ctx.fillStyle = "orange"; 
+                    }else{
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.fillText("1 player", canvas.width/2 - grid * 3, menuY + 250);
+                    if(menu2Selected){
+                        ctx.fillStyle = "orange"; 
+                    }else{
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.fillText("2 players", canvas.width/2 - grid * 3, menuY + 275);
+                    if(passcodeSelected){
+                        ctx.fillStyle = "orange"; 
+                    }else{
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.fillText("Passcode", canvas.width/2 - grid * 3, menuY + 300);
+                    if(menuOnlineSelected){
+                        if(!onlineConnection){
+                            ctx.fillStyle = "red";    
+                        }else{
+                            ctx.fillStyle = "lime";
+                        }
+                    }else{
+                        if(!onlineConnection){
+                            ctx.fillStyle = "maroon";    
+                        }else{
+                            ctx.fillStyle = "green";
+                        }
+                    }
+                    ctx.fillText("online", canvas.width/2 - grid * 3, menuY + 325);
+                    if(scoresSelected){
+                        ctx.fillStyle = "orange"; 
+                    }else{
+                        ctx.fillStyle = "white";
+                    }
+                    ctx.fillText("scores", canvas.width/2 - grid * 3, menuY + 350);
+                }
+                else if(onlineScreenMenu){
+                    onlineScreen();
+                }
+                else if(passcodeScreenMenu){
+                    passcodeScreen();
+                }
+                else if(scoresScreenMenu){
+                    scoresScreen(false);
+                }
+                else{
+                    if (!paused && !settingScene && !countingScore) {
+                        if(onlineGame){
+                            Echo.socket.send(player.number + " " + playerXLoc + " " +  playerYLoc + " " + directionFacing);
+                        }
+
+                        if (enemies.length == 0 && spawnedEnemies >= 20) {
+                            //alert("enemies defeated");
+                            //nextMap();
+                            //setNewStage();
+                            imperialThemeAudio.pause();
+                            imperialThemeAudio.currentTime = 0;
+                            countingScore = true;
+                            if(onlineGame){
+                                Echo.socket.send("countingscore");
                             }
-                            if (b.direction == "left") {
-                                if (b.bx <= 0) {
-                                    b.destroyed = true;
-                                    playAudioFile("BulletHitWall");
-                                }
-                                b.bx -= bulletSpeed;
-                            }
-                            if (b.direction == "up") {
-                                if (b.by <= 0) {
-                                    b.destroyed = true;
-                                    playAudioFile("BulletHitWall");
-                                }
-                                b.by -= bulletSpeed;
-                            }
-                            if (b.direction == "down") {
-                                if (b.by >= canvas.height) {
-                                    b.destroyed = true;
-                                    playAudioFile("BulletHitWall");
-                                }
-                                b.by += bulletSpeed;
-                            }
+                        }
+                        if(player1Score > hiScore.score){
+                            hiScore = new Score(name, player1Score);
+                            gotHiScore = true;
+                        }
+                        if (settingUpMap) {
+                            readTextFile(mapNumber);
+                        }
+                        if(starWars){
+                            ctx.drawImage(stars, 0 ,0);
+                        }else if(bomberman){
+                            ctx.drawImage(bombermanBackground1, 0 ,0);
+                        }
+                        else{
+                           ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        drawIce();
+                        if (map[pY][pX] == 6) {
+                            playerDeltaX = 10;
+                            playerDeltaX = 10;
                         }
                         else {
-                            if (b.explosion == 0) {
-                                b.bx = b.bx - 8;
-                                b.by = b.by - 8;
+                            playerDeltaX = 5;
+                            playerDeltaY = 5;
+                        }
+                        if(playerIsDead){
+                            player = document.getElementById("blank");
+                        }
+                        if(lostALifeAnimation){
+                            lostALife();
+                        }
+                        ctx.drawImage(player, playerXLoc, playerYLoc); //draw Player
+                        //ctx.drawImage(peter, peterX, peterY); //draw Peter
+                        if(twoPlayerGame){
+                            player2.update();
+                        }
+                        didPlayerGetPowerUp();
+                        if(timerStop){
+                            timerIsStopped();
+                        }
+                        if(playerInvincible && !playerIsDead){
+                            doInvinciblity();
+                        }
+                        for (var i = 0; i < enemies.length; i++) {
+                            var e = enemies[i];
+                            if(host){
+                                Echo.socket.send("enemy " + i + " locations " + e.x + " " + e.y);
                             }
-                            playerBulletExplosionAnimation(b);
+                            spawnEnemyAnimation(e);
+                            enemyDestroyedAnimation(e);
+                            collisionWithEnemyBullet(e);
+                            for(var j = 0; j < e.enemyBullets.length; j++){
+                                    var b = e.enemyBullets[j];
+                                    ctx.drawImage(b.image, b.bx, b.by);
+                                    if (!b.destroyed) {
+                                        if (b.direction == "right") {
+                                            if (b.bx >= canvas.width) {
+                                                b.destroyed = true;
+                                                playAudioFile("BulletHitWall");
+                                            }
+                                            else {
+                                                b.bx += bulletSpeed;
+                                            }
+                                        }
+                                        if (b.direction == "left") {
+                                            if (b.bx <= 0) {
+                                                b.destroyed = true;
+                                                playAudioFile("BulletHitWall");
+                                            }
+                                            b.bx -= bulletSpeed;
+                                        }
+                                        if (b.direction == "up") {
+                                            if (b.by <= 0) {
+                                                b.destroyed = true;
+                                                playAudioFile("BulletHitWall");
+                                            }
+                                            b.by -= bulletSpeed;
+                                        }
+                                        if (b.direction == "down") {
+                                            if (b.by >= canvas.height) {
+                                                b.destroyed = true;
+                                                playAudioFile("BulletHitWall");
+                                            }
+                                            b.by += bulletSpeed;
+                                        }
+                                    }
+                                    else {
+                                        if (b.explosion == 0) {
+                                            b.bx = b.bx - 8;
+                                            b.by = b.by - 8;
+                                        }
+                                        enemyBulletExplosionAnimation(b,e);
+                                    }
+                                }
+                            if (!e.spawning && e.alive) {
+                                if(e.blinking){
+                                    blinkAnimation(e);
+                                }
+                                collisionWithBullet(e);
+                                //collisionWithTerrain(e);
+                                //collisionWithAnotherTank(e);
+                                if(!timerStop){
+                                    if(host || !onlineGame){
+
+                                    }
+                                    e.think();
+                                    if(!collisionWithAnotherTank(e)){
+                                        if (e.left && e.canGoLeft()) {
+                                        if (e.x >= e.speed) {
+                                            e.x -= e.speed;
+                                        }
+                                        }else if (e.right && e.canGoRight()) {
+                                            if (e.x + e.speed < (canvas.width - grid * 2)) {
+                                                e.x += e.speed;
+                                            }
+                                        }else if (e.up && e.canGoUp()) {
+                                            if (e.y >= e.speed) {
+                                                e.y -= e.speed;
+                                            }
+                                        }else if (e.down && e.canGoDown()) {
+                                            if (e.y + e.speed < (canvas.height - grid * 2)) {
+                                                e.y += e.speed;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            ctx.drawImage(e.currentImage, e.x, e.y);
                         }
-                    }
-                    pX = Math.floor(playerXLoc / 15);
-                    pY = Math.floor(playerYLoc / 15);
-                    var terrain = map[pY][pX];
-                    document.getElementById("playerLocation").innerHTML = "x: " + pX + " y:" + pY + " score:" + player1Score + " left:" + (-(spawnedEnemies - 20)) + " pow " + powerUp.x + " " + powerUp.y + " lives:" + playerLives;
-                    //setupEnemies();
-                    addNewEnemyToGame();
-                    if(gameIsOver){
-                        gameOver();
-                    }
-    
-    
-                }// main game
-                else if (countingScore) {
-                    pointsScreen();
-                    timeInScore++;
-                }//counting enemies killed and score
-                else if (settingScene) {
-                    if(starWars){
-                        ctx.drawImage(stars, 0 ,0);
-                    }else{
-                       ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    }
-                    if (!starting) {
-                        readTextFile(mapNumber);
+
+                        if(!gameIsOver){
+                            if (left && collisionWithPlayer() != "left") {
+                                goLeft();
+                            }
+                            if (right && collisionWithPlayer() != "right") {
+                                goRight();
+                            }
+                            if (up && collisionWithPlayer() != "up") {
+                                goUp();
+                            }
+                            if (down&& collisionWithPlayer() != "down") {
+                                goDown();
+                            }
+                        }
+
+                        //else{
                         drawMapTerrainImages();
-                        drawIce();
-                    }
-                    ctx.drawImage(stageScreen, 0, screenMove - 208);
-                    ctx.drawImage(stageScreen, 0, canvas.height + (-screenMove));
-                    if (screenMove <= 207 && starting) {
-                        screenMove += 8;
-                    }
-                    else if (!starting && screenMove >= 0) {
-                        screenMove -= 8;
-                    }
-                    else if (!starting && screenMove <= 0) {
-                        settingScene = false;
-                    }
-                    else {
-                        ctx.fillStyle = "black";
-                        ctx.font = "16px nes";
-                        ctx.fillText("Stage " + mapNumber, canvas.width / 2 - grid * 3, canvas.width / 2);
-                        starting = false;
-                        if(starWars){
-                            startImperialTheme();
-                        }else{
-                            playAudioFile("theme");
+                        //}
+                        ctx.drawImage(powerUp.image, powerUp.x, powerUp.y);
+                        for (var i = 0; i < bullets.length; i++) {
+                            var b = bullets[i];
+                            ctx.drawImage(b.image, b.bx, b.by);
+
+                            if (!b.destroyed) {
+                                if (b.direction == "right") {
+                                    if (b.bx >= canvas.width) {
+                                        b.destroyed = true;
+                                        playAudioFile("BulletHitWall");
+                                    }
+                                    else {
+                                        b.bx += bulletSpeed;
+                                    }
+                                }
+                                if (b.direction == "left") {
+                                    if (b.bx <= 0) {
+                                        b.destroyed = true;
+                                        playAudioFile("BulletHitWall");
+                                    }
+                                    b.bx -= bulletSpeed;
+                                }
+                                if (b.direction == "up") {
+                                    if (b.by <= 0) {
+                                        b.destroyed = true;
+                                        playAudioFile("BulletHitWall");
+                                    }
+                                    b.by -= bulletSpeed;
+                                }
+                                if (b.direction == "down") {
+                                    if (b.by >= canvas.height) {
+                                        b.destroyed = true;
+                                        playAudioFile("BulletHitWall");
+                                    }
+                                    b.by += bulletSpeed;
+                                }
+                            }
+                            else {
+                                if (b.explosion == 0) {
+                                    b.bx = b.bx - 8;
+                                    b.by = b.by - 8;
+                                }
+                                playerBulletExplosionAnimation(b);
+                            }
                         }
-                        
-                    }
-                } //stage closing and opening sequence   
+                        pX = Math.floor(playerXLoc / 15);
+                        pY = Math.floor(playerYLoc / 15);
+                        var terrain = map[pY][pX];
+                        document.getElementById("playerLocation").innerHTML = "x: " + pX + " y:" + pY + " score:" + player1Score + " left:" + (-(spawnedEnemies - 20)) + " pow " + powerUp.x + " " + powerUp.y + " lives:" + playerLives;
+                        //setupEnemies();
+                        addNewEnemyToGame();
+                        if(gameIsOver){
+                            gameOver();
+                        }
+
+
+                    }// main game
+                    else if (countingScore) {
+                        pointsScreen();
+                        timeInScore++;
+                    }//counting enemies killed and score
+                    else if (settingScene) {
+                        if(starWars){
+                            ctx.drawImage(stars, 0 ,0);
+                        }else{
+                           ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        if (!starting) {
+                            readTextFile(mapNumber);
+                            drawMapTerrainImages();
+                            drawIce();
+                        }
+                        ctx.drawImage(stageScreen, 0, screenMove - 208);
+                        ctx.drawImage(stageScreen, 0, canvas.height + (-screenMove));
+                        if (screenMove <= 207 && starting) {
+                            screenMove += 8;
+                        }
+                        else if (!starting && screenMove >= 0) {
+                            screenMove -= 8;
+                        }
+                        else if (!starting && screenMove <= 0) {
+                            settingScene = false;
+                        }
+                        else {
+                            ctx.fillStyle = "black";
+                            ctx.font = "16px nes";
+                            ctx.fillText("Stage " + mapNumber, canvas.width / 2 - grid * 3, canvas.width / 2);
+                            starting = false;
+                            if(starWars){
+                                startImperialTheme();
+                            }else{
+                                playAudioFile("theme");
+                            }
+
+                        }
+                    } //stage closing and opening sequence   
+                }    
+            }else if(!pageLoaded){
+                ctx.clearRect(0,0,canvas.width, canvas.height);
+                ctx.fillStyle = "brown";
+                ctx.font = "30px nes";
+                ctx.fillText(pageLoaded,0, canvas.height/2);
             }
-                
         }
 
         function playAudioFile(title) {
